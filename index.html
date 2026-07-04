@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro-Compta — Logiciel de comptabilité SYSCOHADA & paie | Pro-Technologie</title>
+<meta name="description" content="Pro-Compta : comptabilité SYSCOHADA (OHADA) et paie Gabon pour PME. Écritures, grand livre, balance, bilan, TVA, immobilisations, stocks, facturation, bulletins de paie CNSS/CNAMGS/IRPP. Essai gratuit 30 jours.">
+<style>
+:root{--ink:#0E2233;--ink2:#143850;--teal:#12716F;--gold:#C9A227;--gold-d:#A9810F;--bg:#F4F6F8;--txt:#15242F;--muted:#5E7385;--line:#E2E8ED;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,Arial,sans-serif;color:var(--txt);background:#fff}
+a{text-decoration:none}
+.flag{height:6px;display:flex}.flag i{flex:1}.flag .v{background:#009a44}.flag .j{background:var(--gold)}.flag .b{background:#003399}
+.hero{background:radial-gradient(1100px 550px at 75% -10%,rgba(201,162,39,.16),transparent 55%),linear-gradient(160deg,var(--ink),#081521);color:#E9F1F6;padding:52px 20px 60px;text-align:center}
+.hero .crest{width:92px;height:92px;border-radius:22px;background:linear-gradient(135deg,var(--gold-d),var(--gold));display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 auto;box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.hero h1{font-size:40px;margin-top:18px;letter-spacing:.5px}
+.hero h1 b{color:var(--gold)}
+.hero .tag{font-size:16px;color:#B9CBD8;margin-top:10px;max-width:660px;margin-left:auto;margin-right:auto;line-height:1.6}
+.cta{display:inline-block;margin-top:28px;padding:15px 34px;border-radius:12px;background:linear-gradient(135deg,var(--gold-d),var(--gold));color:#2b2103;font-size:17px;font-weight:800;box-shadow:0 12px 30px rgba(201,162,39,.35);transition:transform .1s}
+.cta:hover{transform:translateY(-2px)}
+.cta2{display:inline-block;margin-top:28px;margin-left:12px;padding:15px 26px;border-radius:12px;border:1px solid rgba(255,255,255,.25);color:#E9F1F6;font-size:15px;font-weight:700}
+.hero .essai{margin-top:14px;font-size:13px;color:var(--gold)}
+.sec{max-width:1080px;margin:0 auto;padding:54px 20px}
+.sec h2{font-size:26px;color:var(--ink);text-align:center}
+.sec .sub{color:var(--muted);text-align:center;margin-top:8px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:34px}
+.feat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 6px 18px rgba(14,34,51,.06)}
+.feat .ic{font-size:30px}
+.feat h3{font-size:16px;margin-top:10px;color:var(--ink)}
+.feat p{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6}
+.band{background:var(--bg);padding:40px 20px;text-align:center}
+.band h2{font-size:20px;color:var(--ink)}
+.band .tags{max-width:860px;margin:20px auto 0;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.band .tag{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 16px;font-size:12.5px;font-weight:600}
+.band .tag b{color:var(--gold-d)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:34px}
+.step{text-align:center;padding:10px}
+.step .n{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--ink),var(--ink2));color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.step h3{font-size:15px;margin-top:12px}
+.step p{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.6}
+.contact{background:linear-gradient(160deg,var(--ink),#081521);color:#E9F1F6;padding:56px 20px;text-align:center}
+.contact h2{font-size:26px}
+.contact h2 b{color:var(--gold)}
+.contact .box{max-width:520px;margin:26px auto 0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:28px}
+.contact .tel{font-size:26px;font-weight:800;margin-top:6px}
+.contact .tel a{color:#fff}
+.contact .mail a{color:var(--gold);font-weight:700;font-size:16px}
+.contact .note{font-size:12.5px;color:#B9CBD8;margin-top:14px;line-height:1.7}
+footer{background:#060F18;color:#7E93A5;text-align:center;font-size:12px;padding:18px}
+@media(max-width:600px){.hero h1{font-size:30px}.cta2{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="flag"><i class="v"></i><i class="j"></i><i class="b"></i></div>
+
+<section class="hero">
+  <div class="crest">🧮</div>
+  <h1>Pro-<b>Compta</b></h1>
+  <div class="tag">Le logiciel de <b>comptabilité SYSCOHADA</b> et de <b>paie</b> pour les PME du Gabon et de la zone OHADA.
+  Écritures, états financiers, TVA, immobilisations, stocks, facturation et bulletins de paie — dans un seul outil.</div>
+  <div>
+    <a class="cta" href="Pro-Compta_V2.html">🚀 Ouvrir l'application</a>
+    <a class="cta2" href="#contact">Nous contacter</a>
+  </div>
+  <div class="essai">✔ Essai gratuit de 30 jours — sans installation</div>
+</section>
+
+<section class="sec">
+  <h2>Une comptabilité complète, aux normes OHADA</h2>
+  <div class="sub">Plan comptable SYSCOHADA révisé intégré</div>
+  <div class="grid">
+    <div class="feat"><div class="ic">📒</div><h3>Écritures & journaux</h3><p>Saisie guidée en partie double, journaux (achats, ventes, banque, caisse, OD), lettrage et contrôle d'équilibre automatique.</p></div>
+    <div class="feat"><div class="ic">📊</div><h3>États financiers</h3><p>Grand livre, balance, bilan et compte de résultat SYSCOHADA générés automatiquement, prêts à imprimer.</p></div>
+    <div class="feat"><div class="ic">🧾</div><h3>Facturation & TVA</h3><p>Devis et factures clients à votre en-tête, suivi des règlements, déclaration de TVA (18%) préparée pour vous.</p></div>
+    <div class="feat"><div class="ic">🏭</div><h3>Immobilisations</h3><p>Fiches d'immobilisations, plans d'amortissement automatiques, dotations et valeurs nettes comptables.</p></div>
+    <div class="feat"><div class="ic">📦</div><h3>Stocks</h3><p>Articles, entrées/sorties, valorisation du stock et alertes de niveau.</p></div>
+    <div class="feat"><div class="ic">💰</div><h3>Paie Gabon</h3><p>Bulletins de paie avec CNSS, CNAMGS, TCTS et IRPP calculés selon la réglementation gabonaise, livre de paie mensuel.</p></div>
+    <div class="feat"><div class="ic">👥</div><h3>Multi-utilisateurs</h3><p>Comptes et rôles (direction, comptable, caissier), mode réseau pour travailler à plusieurs sur le même dossier.</p></div>
+    <div class="feat"><div class="ic">🔑</div><h3>Licence sécurisée</h3><p>Essai gratuit 30 jours, activation par clé, sauvegarde et restauration des dossiers intégrées.</p></div>
+  </div>
+</section>
+
+<section class="band">
+  <h2>🧾 Pensé pour la conformité</h2>
+  <div class="tags">
+    <span class="tag">Plan comptable <b>SYSCOHADA révisé</b></span>
+    <span class="tag">TVA <b>18%</b></span>
+    <span class="tag">Paie <b>CNSS · CNAMGS · IRPP · TCTS</b></span>
+    <span class="tag">Devise <b>F CFA</b></span>
+    <span class="tag">Zone <b>OHADA</b></span>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Comment ça marche ?</h2>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>Ouvrez l'application</h3><p>Directement dans le navigateur — ordinateur, tablette ou téléphone. Aucune installation.</p></div>
+    <div class="step"><div class="n">2</div><h3>Créez votre dossier</h3><p>Société, exercice, comptes : le plan SYSCOHADA est déjà chargé.</p></div>
+    <div class="step"><div class="n">3</div><h3>Essayez 30 jours gratuitement</h3><p>Toutes les fonctionnalités, sans engagement.</p></div>
+    <div class="step"><div class="n">4</div><h3>Activez votre licence</h3><p>Contactez Pro-Technologie pour obtenir votre clé d'activation.</p></div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <h2>Activation & assistance — <b>Pro-Technologie</b></h2>
+  <div class="box">
+    <div style="font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:#B9CBD8">Appelez-nous</div>
+    <div class="tel"><a href="tel:+241077925458">📞 077 92 54 58</a></div>
+    <div class="tel"><a href="tel:+241066925458">📞 066 92 54 58</a></div>
+    <div class="mail" style="margin-top:14px"><a href="mailto:ndongafene@protechnologie.com">✉ ndongafene@protechnologie.com</a></div>
+    <div class="note">Obtenez votre clé d'activation, une démonstration ou un accompagnement à la mise en place.<br>Akanda · Estuaire · Gabon</div>
+  </div>
+</section>
+
+<footer>© 2026 Pro-Technologie — Pro-Compta V2.0 · Tous droits réservés</footer>
+</body>
+</html>
