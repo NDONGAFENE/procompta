@@ -104,6 +104,7 @@ td.num{font-variant-numeric:tabular-nums; white-space:nowrap}
 @media print{ body.printing-lot .app, body.printing-lot .lock, body.printing-lot .modal{display:none !important}
   body.printing-lot #lotPrint{display:block !important} body.printing-lot{background:#fff}
   .lotpage{page-break-after:always} .lotpage:last-child{page-break-after:auto} }
+.badge{display:inline-block;background:#0E2A3D;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11.5px;color:var(--mut)}.badge b{color:#DCEDF2}
 </style>
 </head>
 <body>
@@ -115,23 +116,9 @@ td.num{font-variant-numeric:tabular-nums; white-space:nowrap}
     </div>
     <div id="socBar" style="margin:0 6px 12px"></div>
     <a data-v="dash" class="on"><span class="ic">▦</span> Tableau de bord</a>
-    <a data-v="ecr"><span class="ic">✎</span> Écritures</a>
-    <a data-v="gl"><span class="ic">▤</span> Grand livre</a>
-    <a data-v="bal"><span class="ic">≡</span> Balance</a>
-    <a data-v="etats"><span class="ic">▣</span> Bilan &amp; Résultat</a>
-    <a data-v="analytique"><span class="ic">◧</span> Analytique</a>
-    <a data-v="budget"><span class="ic">◑</span> Budget</a>
-    <a data-v="immo"><span class="ic">🏢</span> Immobilisations</a>
-    <a data-v="fact"><span class="ic">🧾</span> Facturation</a>
-    <a data-v="achats"><span class="ic">🛒</span> Achats</a>
-    <a data-v="stock"><span class="ic">📦</span> Stocks</a>
-    <a data-v="tiers"><span class="ic">◫</span> Tiers</a>
-    <a data-v="lettrage"><span class="ic">🔗</span> Lettrage</a>
-    <a data-v="rappro"><span class="ic">⇄</span> Rapprochement</a>
-    <a data-v="echeancier"><span class="ic">⏰</span> Échéancier</a>
-    <a data-v="tva"><span class="ic">％</span> TVA / Fiscal</a>
-    <a data-v="plan"><span class="ic">☰</span> Plan comptable</a>
-    <a data-v="paye"><span class="ic">👥</span> Pro-Compta Paye</a>
+    <a data-v="multi"><span class="ic">🏢</span> Mes sociétés</a>
+    <div id="navlinks"></div>
+    <a data-v="ia"><span class="ic">🤖</span> Assistant IA</a>
     <a data-v="params"><span class="ic">⚙</span> Paramètres</a>
     <a data-v="lic"><span class="ic">⚿</span> Licence</a>
     <div class="navfoot">
@@ -164,6 +151,23 @@ td.num{font-variant-numeric:tabular-nums; white-space:nowrap}
   <div id="logErr" style="color:var(--dr); font-size:12px; min-height:16px; margin-top:6px"></div>
   <button class="btn emer" id="logBtn" style="width:100%; justify-content:center; margin-top:4px">Se connecter</button>
   <p style="margin-top:14px; font-size:11px; text-align:center; color:var(--mut)">© Pro-Technologie · 📞 077 92 54 58 · 066 92 54 58<br><a href="mailto:ndongafene@protechnologie.com" style="color:#DCEDF2">ndongafene@protechnologie.com</a></p>
+</div></div>
+
+<!-- Première configuration : création du Directeur Financier (admin) -->
+<div class="lock" id="setupOv"><div class="lockbox" style="max-width:460px">
+  <h2>Bienvenue dans Pro-Compta</h2>
+  <p>Première mise en service. Créez le compte <b>Directeur Financier</b> (administrateur). Lui seul pourra ensuite créer et contrôler les autres utilisateurs.</p>
+  <label class="fl" style="margin-top:14px">Nom du Directeur Financier</label>
+  <input class="in" id="suName" placeholder="Ex : NDONG Marie" autocomplete="name">
+  <label class="fl" style="margin-top:10px">Identifiant de connexion</label>
+  <input class="in" id="suLoginInit" placeholder="Ex : daf" autocomplete="username">
+  <label class="fl" style="margin-top:10px">Mot de passe</label>
+  <input class="in" id="suPwd1" type="password" autocomplete="new-password">
+  <label class="fl" style="margin-top:10px">Confirmer le mot de passe</label>
+  <input class="in" id="suPwd2" type="password" autocomplete="new-password">
+  <div id="suErr" style="color:var(--dr); font-size:12px; min-height:16px; margin-top:6px"></div>
+  <button class="btn emer" id="suBtn" style="width:100%; justify-content:center; margin-top:6px">Créer le compte administrateur</button>
+  <p style="margin-top:14px; font-size:11px; text-align:center; color:var(--mut)">🔐 À partir de maintenant, l'accès à l'application sera protégé par mot de passe.<br>© Pro-Technologie</p>
 </div></div>
 
 <!-- Overlay de verrouillage -->
@@ -253,6 +257,7 @@ const $=s=>document.querySelector(s);
 const today=()=>Math.floor(Date.now()/86400000);
 const todayISO=()=>new Date().toISOString().slice(0,10);
 const money=n=>{ n=Math.round(n||0); return n.toLocaleString('fr-FR'); };
+function cur(){ return (typeof S!=='undefined'&&S.company&&S.company.devise)||'FCFA'; }
 const esc=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
 function enLettres(num){ num=Math.round(Math.abs(num)); if(num===0) return 'zéro';
@@ -271,6 +276,70 @@ function enLettres(num){ num=Math.round(Math.abs(num)); if(num===0) return 'zér
 /* ---------- Internationalisation (FR, EN, ES, DE, 中文) ---------- */
 const LANG_IDX={fr:null,en:0,es:1,de:2,zh:3};
 const I18N={
+ "Banque Opération":["Operations Bank","Operations Bank","Operations Bank","Operations Bank"],
+ "Banque Analyse":["Analysis Bank","Analysis Bank","Analysis Bank","Analysis Bank"],
+ "Analyse & Graphiques":["Analytics & Charts","Analytics & Charts","Analytics & Charts","Analytics & Charts"],
+ "Graphiques de gestion":["Management Charts","Management Charts","Management Charts","Management Charts"],
+ "Banque Fiscal":["Tax Bank","Tax Bank","Tax Bank","Tax Bank"],
+ "Liasse fiscale OHADA":["OHADA Tax Return","OHADA Tax Return","OHADA Tax Return","OHADA Tax Return"],
+ "Banque Social":["Payroll & Social Bank","Payroll & Social Bank","Payroll & Social Bank","Payroll & Social Bank"],
+ "Paie":["Payroll","Payroll","Payroll","Payroll"],
+ "Documents internes":["Internal Documents","Internal Documents","Internal Documents","Internal Documents"],
+ "Documents externes":["External Documents","External Documents","External Documents","External Documents"],
+ "Banque Clôture":["Closing Bank","Closing Bank","Closing Bank","Closing Bank"],
+ "Clôture semestrielle":["Half-Year Closing","Half-Year Closing","Half-Year Closing","Half-Year Closing"],
+ "Assistant IA":["AI Assistant","AI Assistant","AI Assistant","AI Assistant"],
+ "Mes sociétés":["My Companies","My Companies","My Companies","My Companies"],
+ "Plan comptable":["Chart of Accounts","Chart of Accounts","Chart of Accounts","Chart of Accounts"],
+ "Échéancier":["Payment Schedule","Payment Schedule","Payment Schedule","Payment Schedule"],
+ "Paramètres":["Settings","Settings","Settings","Settings"],
+ "Licence":["License","License","License","License"],
+ "Rapprochement bancaire":["Bank Reconciliation","Bank Reconciliation","Bank Reconciliation","Bank Reconciliation"],
+ "Utilisateurs":["Users","Users","Users","Users"],
+ "Enregistrer":["Save","Save","Save","Save"],
+ "Imprimer":["Print","Print","Print","Print"],
+ "Valider":["Confirm","Confirm","Confirm","Confirm"],
+ "Annuler":["Cancel","Cancel","Cancel","Cancel"],
+ "Supprimer":["Delete","Delete","Delete","Delete"],
+ "Modifier":["Edit","Edit","Edit","Edit"],
+ "Ajouter":["Add","Add","Add","Add"],
+ "Rechercher…":["Search…","Search…","Search…","Search…"],
+ "Se connecter":["Sign in","Sign in","Sign in","Sign in"],
+ "Se déconnecter":["Sign out","Sign out","Sign out","Sign out"],
+ "Envoyer":["Send","Send","Send","Send"],
+ "Ouvrir":["Open","Open","Open","Open"],
+ "Restaurer":["Restore","Restore","Restore","Restore"],
+ "Date":["Date","Date","Date","Date"],
+ "Libellé":["Description","Description","Description","Description"],
+ "Débit":["Debit","Debit","Debit","Debit"],
+ "Crédit":["Credit","Credit","Credit","Credit"],
+ "Montant":["Amount","Amount","Amount","Amount"],
+ "Total":["Total","Total","Total","Total"],
+ "Compte":["Account","Account","Account","Account"],
+ "Rôle":["Role","Role","Role","Role"],
+ "Société":["Company","Company","Company","Company"],
+ "Pays":["Country","Country","Country","Country"],
+ "Devise":["Currency","Currency","Currency","Currency"],
+ "Chiffre d'affaires":["Revenue","Revenue","Revenue","Revenue"],
+ "Résultat":["Result","Result","Result","Result"],
+ "Résultat net":["Net Result","Net Result","Net Result","Net Result"],
+ "Trésorerie":["Cash","Cash","Cash","Cash"],
+ "Charges":["Expenses","Expenses","Expenses","Expenses"],
+ "Produits":["Income","Income","Income","Income"],
+ "Bilan":["Balance Sheet","Balance Sheet","Balance Sheet","Balance Sheet"],
+ "Compte de résultat":["Income Statement","Income Statement","Income Statement","Income Statement"],
+ "Flux de trésorerie":["Cash Flow","Cash Flow","Cash Flow","Cash Flow"],
+ "Notes annexes":["Notes","Notes","Notes","Notes"],
+ "Déclarations":["Filings","Filings","Filings","Filings"],
+ "Raison sociale":["Company Name","Company Name","Company Name","Company Name"],
+ "Exercice":["Fiscal Year","Fiscal Year","Fiscal Year","Fiscal Year"],
+ "Identité de la société":["Company Identity","Company Identity","Company Identity","Company Identity"],
+ "Pays / Zone OHADA":["Country / OHADA Zone","Country / OHADA Zone","Country / OHADA Zone","Country / OHADA Zone"],
+ "Taux par défaut":["Default Rates","Default Rates","Default Rates","Default Rates"],
+ "DTS — Déclaration Trimestrielle des Salaires":["Quarterly Wage Return (DTS)","Quarterly Wage Return (DTS)","Quarterly Wage Return (DTS)","Quarterly Wage Return (DTS)"],
+ "DAS — Déclaration Annuelle des Salaires":["Annual Wage Return (DAS)","Annual Wage Return (DAS)","Annual Wage Return (DAS)","Annual Wage Return (DAS)"],
+ "Année":["Year","Year","Year","Year"],
+ "Trimestre":["Quarter","Quarter","Quarter","Quarter"],
  // Navigation
  "Tableau de bord":["Dashboard","Panel de control","Übersicht","仪表板"],
  "Écritures":["Journal Entries","Asientos","Buchungen","记账凭证"],
@@ -371,7 +440,7 @@ function applyLang(){ const ls=$('#langSel'); if(ls) ls.value=APP.lang;
   arr.forEach(t=>{ if(!ORIG.has(t)) ORIG.set(t,t.nodeValue); const fr=ORIG.get(t); const nv=(APP.lang==='fr')?fr:trText(fr); if(t.nodeValue!==nv) t.nodeValue=nv; });
   document.querySelectorAll('[placeholder]').forEach(el=>{ if(!el.dataset.phfr) el.dataset.phfr=el.getAttribute('placeholder'); const fr=el.dataset.phfr; el.setAttribute('placeholder',(APP.lang==='fr')?fr:trText(fr)); });
 }
-window.setLang=l=>{ APP.lang=l; try{localStorage.setItem(APPKEY,JSON.stringify(APP));}catch(e){} render(); };
+window.setLang=l=>{ APP.lang=l; saveAPP(); render(); };
 
 // Remplacement de window.prompt() (non supporte par Electron) par une fenetre integree
 function uiPrompt(message, isPassword){
@@ -424,6 +493,24 @@ const JOURNAUX=[['VTE','Ventes'],['ACH','Achats'],['BQ','Banque'],['CA','Caisse'
 
 /* ---------- État ---------- */
 const APPKEY='procompta_app';
+/* ===== BRIQUE 1 — Chiffrement des données (illisibles/inmodifiables hors logiciel) ===== */
+const CRYPT_SEED = _sum('pro-technologie|procompta-v3|chiffrement-securise')>>>0;
+function _bytes(str){ return unescape(encodeURIComponent(str)); }
+function _unbytes(b){ try{ return decodeURIComponent(escape(b)); }catch(e){ return b; } }
+function _xorStream(bytes, seed){ let x=(seed>>>0)||0x9e3779b9, out=''; for(let i=0;i<bytes.length;i++){ x^=x<<13;x>>>=0;x^=x>>>17;x^=x<<5;x>>>=0; out+=String.fromCharCode(bytes.charCodeAt(i)^(x&0xFF)); } return out; }
+function encBlob(plain){ const enc=_xorStream(_bytes(plain),CRYPT_SEED); const chk=b36(_sum(plain)%1679616,4); return 'PC3E1:'+btoa(enc)+'.'+chk; }
+function decBlob(blob){ if(typeof blob!=='string'||blob.indexOf('PC3E1:')!==0) return null;
+  try{ const body=blob.slice(6), dot=body.lastIndexOf('.'); const enc=atob(body.slice(0,dot)), chk=body.slice(dot+1);
+    const plain=_unbytes(_xorStream(enc,CRYPT_SEED)); if(b36(_sum(plain)%1679616,4)!==chk) return {tampered:true}; return {plain}; }
+  catch(e){ return {tampered:true}; } }
+function saveAPP(){ try{ localStorage.setItem(APPKEY, encBlob(JSON.stringify(APP))); }catch(e){ try{alert('Stockage plein.');}catch(_){}} }
+
+/* ===== BRIQUE 1 — Journal d'audit inviolable (chaîné) ===== */
+function auditHash(rec, prev){ return b36(_sum(rec.i+'|'+rec.t+'|'+rec.user+'|'+rec.act+'|'+(rec.det||'')+'|'+prev)%2176782336,6); }
+function audit(act, det){ try{ APP.audit=APP.audit||[]; const prev=APP.audit.length?APP.audit[APP.audit.length-1].h:'GENESIS';
+  const rec={i:APP.audit.length+1, t:new Date().toISOString(), user:(currentUser&&currentUser.login)||'—', act:act, det:(det||'')}; rec.h=auditHash(rec,prev); APP.audit.push(rec); saveAPP(); }catch(e){} }
+function auditVerify(){ const A=APP.audit||[]; let prev='GENESIS'; for(let i=0;i<A.length;i++){ if(auditHash(A[i],prev)!==A[i].h) return i+1; prev=A[i].h; } return 0; }
+
 function normalize(s){ if(!s) s={};
   s.company=s.company||{name:'Ma Société', nif:'', rccm:'', exercice:new Date().getFullYear()};
   if(!s.company.pays) s.company.pays='Gabon';
@@ -434,7 +521,7 @@ function normalize(s){ if(!s) s={};
   s.settings.rates=s.settings.rates||{EUR:655.957, USD:600};
   s.license=s.license||{installed:today(), key:null};
   s.employees=s.employees||[];
-  s.payslips=s.payslips||[];
+  s.payslips=s.payslips||[]; s.docs=s.docs||[]; s.clotures=s.clotures||[]; s.lockedUntil=s.lockedUntil||'';
   s.conges=s.conges||[];
   s.assets=s.assets||[];
   s.invoices=s.invoices||[];
@@ -451,11 +538,13 @@ function normalize(s){ if(!s) s={};
   s.stockMoves=s.stockMoves||[];
   s.analytics=s.analytics||[];
   s.budgets=s.budgets||{};
-  s.paie=s.paie||{cnssSal:5,cnssPat:18,cnamgsSal:1,cnamgsPat:4.1,tcts:5,tctsSeuil:150000,plafondCnss:1500000,abattPlafond:833333,congesParMois:2};
+  s.paie=s.paie||{cnssSal:2.5,cnssPat:16,cnamgsSal:2,cnamgsPat:4.1,tcts:5,tctsSeuil:150000,plafondCnss:1500000,abattPlafond:833333,congesParMois:2};
   if(s.paie.congesParMois==null) s.paie.congesParMois=2;
   if(!s.license.installed) s.license.installed=today();
   return s; }
-function loadApp(){ let a=null; try{ a=JSON.parse(localStorage.getItem(APPKEY)); }catch(e){}
+function loadApp(){ let a=null; const raw=localStorage.getItem(APPKEY);
+  if(raw){ if(raw.indexOf('PC3E1:')===0){ const d=decBlob(raw); if(d&&d.tampered){ try{alert('⚠ Données altérées détectées hors du logiciel. Pour votre sécurité, restaurez une sauvegarde saine.');}catch(e){} } else if(d&&d.plain){ try{ a=JSON.parse(d.plain); }catch(e){} } }
+    else { try{ a=JSON.parse(raw); }catch(e){} } }
   if(!a || !a.companies || !a.active || !a.companies[a.active]){
     let old=null; try{ old=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
     const id='soc'+Date.now(); a={active:id, companies:{}};
@@ -468,19 +557,29 @@ function loadApp(){ let a=null; try{ a=JSON.parse(localStorage.getItem(APPKEY));
   return a; }
 function hashPwd(p){ return _sum((p||'')+'|procompta-salt')>>>0; }
 let currentUser=null;
-const ROLE_LABEL={admin:'Administrateur',comptable:'Comptable',paie:'Gestion de paie',consultation:'Consultation'};
+const ROLE_LABEL={admin:'Directeur Financier',comptable:'Comptable',paie:'Gestion de paie',consultation:'Consultation'};
 const ROLE_VIEWS={ admin:null, consultation:null,
   comptable:['dash','ecr','gl','bal','etats','immo','fact','achats','stock','tiers','lettrage','rappro','echeancier','tva','plan','analytique','budget','lic'],
   paie:['dash','paye','lic'] };
-function canView(v){ if(!currentUser) return true; const allowed=ROLE_VIEWS[currentUser.role]; return allowed===null||!allowed?true:allowed.includes(v); }
+function canView(v){ if(!currentUser) return true; if(currentUser.role==='admin') return true; if(ALWAYS.has(v)) return true; const bank=viewBank(v); return bank?bankAllowed(bank):true; }
 function isReadonly(){ return currentUser && currentUser.role==='consultation'; }
 function applyRolePerms(){ document.querySelectorAll('.nav a[data-v]').forEach(a=>{ a.style.display = canView(a.dataset.v)?'':'none'; }); }
 let APP=loadApp();
 let S=normalize(APP.companies[APP.active].data); APP.companies[APP.active].data=S;
 let view='dash';
 function persist(){ if(isReadonly()) return; APP.companies[APP.active].data=S; APP.companies[APP.active].name=S.company.name||APP.companies[APP.active].name;
-  try{ localStorage.setItem(APPKEY,JSON.stringify(APP)); }catch(e){ alert('Stockage plein.'); }
+  autoSnapshot();
+  saveAPP();
   if(APP.mode==='reseau' && netSession){ try{ netPush(); }catch(e){} } }
+function autoSnapshot(){ try{ APP.snapshots=APP.snapshots||[]; const now=Date.now();
+  const last=APP.snapshots[APP.snapshots.length-1];
+  if(last && (now-last.t)<600000) return; // au plus 1 instantané / 10 min
+  APP.snapshots.push({t:now, active:APP.active, name:(S.company&&S.company.name)||'', data:JSON.stringify(APP.companies[APP.active].data)});
+  if(APP.snapshots.length>8) APP.snapshots=APP.snapshots.slice(-8);
+}catch(e){} }
+window.restoreSnapshot=(t)=>{ const sn=(APP.snapshots||[]).find(x=>x.t===+t); if(!sn){alert('Instantané introuvable.');return;}
+  if(!confirm('Restaurer les données de la société au '+new Date(sn.t).toLocaleString('fr-FR')+' ?\nLes données actuelles de cette société seront remplacées.'))return;
+  try{ const d=JSON.parse(sn.data); APP.companies[sn.active].data=normalize(d); if(APP.active===sn.active) S=APP.companies[sn.active].data; audit('RESTAURATION_INSTANTANE',new Date(sn.t).toLocaleString('fr-FR')); saveAPP(); render(); alert('Données restaurées.'); }catch(e){ alert('Restauration impossible.'); } };
 window.switchCompany=id=>{ if(!APP.companies[id])return; persist(); APP.active=id; S=normalize(APP.companies[id].data); APP.companies[id].data=S; view='dash'; persist(); render(); };
 window.newCompany=async()=>{ const nom=await uiPrompt('Nom de la nouvelle société :'); if(!nom)return; const id='soc'+Date.now();
   APP.companies[id]={name:nom, data:normalize({company:{name:nom,nif:'',rccm:'',exercice:new Date().getFullYear()}})};
@@ -522,6 +621,36 @@ function calcPaie(emp){ const R=S.paie;
 }
 
 /* ---------- Vues ---------- */
+/* ===== BRIQUE 2 — Banques comptables & navigation dynamique ===== */
+const BANKS=[
+  {id:'operation',label:'Banque Opération',ic:'✎',views:[['ecr','✎','Écritures'],['fact','🧾','Facturation'],['achats','🛒','Achats'],['stock','📦','Stocks'],['tiers','◫','Tiers'],['lettrage','🔗','Lettrage'],['rappro','⇄','Rapprochement'],['echeancier','⏰','Échéancier'],['plan','☰','Plan comptable']]},
+  {id:'analyse',label:'Banque Analyse',ic:'▤',views:[['gl','▤','Grand livre'],['bal','≡','Balance'],['etats','▣','Bilan & Résultat'],['analytique','◧','Analytique'],['budget','◑','Budget'],['immo','🏢','Immobilisations']]},
+  {id:'graph',label:'Analyse & Graphiques',ic:'📊',views:[['graph','📊','Graphiques de gestion']]},
+  {id:'fiscal',label:'Banque Fiscal',ic:'％',views:[['tva','％','TVA'],['liasse','▣','Liasse fiscale OHADA']]},
+  {id:'social',label:'Banque Social',ic:'👥',views:[['paye','👥','Paie'],['social','🛡','CNSS · CNAMGS · DTS · DAS']]},
+  {id:'docint',label:'Documents internes',ic:'📁',views:[['docint','📁','Documents internes']]},
+  {id:'docext',label:'Documents externes',ic:'📂',views:[['docext','📂','Documents externes']]},
+  {id:'cloture',label:'Banque Clôture',ic:'🔒',views:[['cloture','🔒','Clôture semestrielle']]},
+];
+const ALWAYS=new Set(['dash','multi','params','lic','ia']);
+function viewBank(v){ for(const b of BANKS){ if(b.views.some(x=>x[0]===v)) return b.id; } return null; }
+function userBanks(){ if(!currentUser) return '*'; if(currentUser.role==='admin') return '*';
+  const u=APP.users.find(x=>x.login===currentUser.login);
+  if(u&&Array.isArray(u.banks)) return u.banks;
+  if(currentUser.role==='comptable') return ['operation','analyse','fiscal','graph','docint','docext'];
+  if(currentUser.role==='paie') return ['social'];
+  return '*'; }
+function bankAllowed(id){ const b=userBanks(); return b==='*'||b.includes(id); }
+let navOpen={};
+function buildNav(){ const box=document.getElementById('navlinks'); if(!box) return;
+  const cur=viewBank(view); if(cur && navOpen[cur]===undefined) navOpen[cur]=true;
+  box.innerHTML=BANKS.filter(b=>bankAllowed(b.id)).map(b=>{
+    const open=navOpen[b.id]!==false && (navOpen[b.id]===true || b.id===cur);
+    return `<div class="bankgrp"><a class="bankhdr" data-bank="${b.id}" style="font-weight:700;opacity:.95"><span class="ic">${b.ic}</span> ${b.label} <span style="margin-left:auto;font-size:10px">${open?'▾':'▸'}</span></a>`+
+      `<div class="banksub" style="${open?'':'display:none'};margin:2px 0 6px 6px;border-left:1px solid var(--line);padding-left:6px">`+
+      b.views.map(v=>`<a data-v="${v[0]}" class="${v[0]===view?'on':''}"><span class="ic">${v[1]}</span> ${v[2]}</a>`).join('')+`</div></div>`;
+  }).join('');
+}
 const views={};
 views.dash=()=>{
   const treso=prefixBalance('52').solde+prefixBalance('53').solde+prefixBalance('57').solde;
@@ -664,7 +793,7 @@ views.etats=()=>{
   return `<div class="head"><div><h1>États financiers &amp; liasse</h1><p>Soldes intermédiaires de gestion, bilan et liasse fiscale — exercice ${ex}.</p></div><div style="display:flex;gap:8px"><button class="btn ghost" onclick="window.print()">Imprimer</button><button class="btn ghost" onclick="closeExercice()">Clôturer l'exercice ${ex}</button></div></div>
   <div class="card"><h3>Compte de résultat — soldes intermédiaires de gestion</h3>
     <table style="max-width:620px"><tbody>${sigRows}</tbody></table>
-    <div class="balbar" style="margin-top:12px"><span style="font-family:var(--disp);font-size:15px">Résultat avant impôt : <b style="color:${resAvIS>=0?'var(--cr)':'var(--dr)'}">${money(resAvIS)} FCFA</b></span></div>
+    <div class="balbar" style="margin-top:12px"><span style="font-family:var(--disp);font-size:15px">Résultat avant impôt : <b style="color:${resAvIS>=0?'var(--cr)':'var(--dr)'}">${money(resAvIS)} ${cur()}</b></span></div>
   </div>
   <div class="card"><h3>Bilan par grandes masses</h3>
     <div class="row" style="align-items:flex-start">
@@ -736,48 +865,69 @@ views.budget=()=>{
 window.delBudget=num=>{ delete S.budgets[num]; persist(); render(); };
 
 const COUNTRIES={
- 'Gabon':{tva:18,css:1,is:30,dev:'FCFA'},
- 'Cameroun':{tva:19.25,css:0,is:33,dev:'FCFA'},
- "Côte d'Ivoire":{tva:18,css:0,is:25,dev:'FCFA'},
- 'Sénégal':{tva:18,css:0,is:30,dev:'FCFA'},
- 'Tchad':{tva:18,css:0,is:35,dev:'FCFA'},
- 'Congo (Brazzaville)':{tva:18.9,css:0,is:28,dev:'FCFA'},
- 'Bénin':{tva:18,css:0,is:30,dev:'FCFA'},
- 'Burkina Faso':{tva:18,css:0,is:27.5,dev:'FCFA'},
- 'Togo':{tva:18,css:0,is:27,dev:'FCFA'},
- 'Mali':{tva:18,css:0,is:30,dev:'FCFA'},
- 'Niger':{tva:19,css:0,is:30,dev:'FCFA'},
- 'Centrafrique':{tva:19,css:0,is:30,dev:'FCFA'},
- 'Guinée équatoriale':{tva:15,css:0,is:35,dev:'FCFA'},
- 'Guinée (Conakry)':{tva:18,css:0,is:25,dev:'GNF'},
- 'Guinée-Bissau':{tva:19,css:0,is:25,dev:'FCFA'},
- 'RD Congo':{tva:16,css:0,is:30,dev:'CDF'},
- 'Comores':{tva:10,css:0,is:35,dev:'KMF'}
-};
+ 'Gabon':{zone:'CEMAC',devise:'FCFA',code:'XAF',tva:18,css:1,is:30,id1:'NIF',id2:'RCCM',org:[{nom:'CNSS',sal:2.5,pat:16,plaf:1500000},{nom:'CNAMGS',sal:2,pat:4.1,plaf:1500000}],irpp:'IRPP par tranches'},
+ 'Cameroun':{zone:'CEMAC',devise:'FCFA',code:'XAF',tva:19.25,css:0,is:33,id1:'NIU',id2:'RCCM',org:[{nom:'CNPS',sal:4.2,pat:8.4,plaf:750000},{nom:'Prestations familiales',sal:0,pat:7,plaf:750000}],irpp:'IRPP + CAC 10%'},
+ "Côte d'Ivoire":{zone:'UEMOA',devise:'FCFA',code:'XOF',tva:18,css:0,is:25,id1:'Compte Contribuable',id2:'RCCM',org:[{nom:'CNPS Retraite',sal:6.3,pat:7.7,plaf:3375000},{nom:'CNPS Prest. familiales',sal:0,pat:5.75,plaf:70000}],irpp:'ITS'},
+ 'Sénégal':{zone:'UEMOA',devise:'FCFA',code:'XOF',tva:18,css:0,is:30,id1:'NINEA',id2:'RCCM',org:[{nom:'IPRES',sal:5.6,pat:8.4,plaf:432000},{nom:'CSS',sal:0,pat:7,plaf:63000}],irpp:'IRPP par tranches'},
+ 'Tchad':{zone:'CEMAC',devise:'FCFA',code:'XAF',tva:18,css:0,is:35,id1:'NIF',id2:'RCCM',org:[{nom:'CNPS',sal:3.5,pat:12.5,plaf:500000}],irpp:'IRPP'},
+ 'Congo (Brazzaville)':{zone:'CEMAC',devise:'FCFA',code:'XAF',tva:18.9,css:0,is:28,id1:'NIU',id2:'RCCM',org:[{nom:'CNSS',sal:4,pat:8,plaf:1200000}],irpp:'IRPP'},
+ 'Bénin':{zone:'UEMOA',devise:'FCFA',code:'XOF',tva:18,css:0,is:30,id1:'IFU',id2:'RCCM',org:[{nom:'CNSS',sal:3.6,pat:6.4,plaf:0}],irpp:'ITS'},
+ 'Burkina Faso':{zone:'UEMOA',devise:'FCFA',code:'XOF',tva:18,css:0,is:27.5,id1:'IFU',id2:'RCCM',org:[{nom:'CNSS',sal:5.5,pat:16,plaf:600000}],irpp:'IUTS'},
+ 'Togo':{zone:'UEMOA',devise:'FCFA',code:'XOF',tva:18,css:0,is:27,id1:'NIF',id2:'RCCM',org:[{nom:'CNSS',sal:4,pat:17.5,plaf:0}],irpp:'IRPP'},
+ 'Mali':{zone:'UEMOA',devise:'FCFA',code:'XOF',tva:18,css:0,is:30,id1:'NIF',id2:'RCCM',org:[{nom:'INPS',sal:3.6,pat:17.4,plaf:0}],irpp:'ITS'},
+ 'Niger':{zone:'UEMOA',devise:'FCFA',code:'XOF',tva:19,css:0,is:30,id1:'NIF',id2:'RCCM',org:[{nom:'CNSS',sal:5.25,pat:15.4,plaf:400000}],irpp:'IUTS'},
+ 'Centrafrique':{zone:'CEMAC',devise:'FCFA',code:'XAF',tva:19,css:0,is:30,id1:'NIF',id2:'RCCM',org:[{nom:'CNSS',sal:3,pat:16,plaf:0}],irpp:'IRPP'},
+ 'Guinée équatoriale':{zone:'CEMAC',devise:'FCFA',code:'XAF',tva:15,css:0,is:35,id1:'NIF',id2:'RCCM',org:[{nom:'INSESO',sal:4.5,pat:21.5,plaf:0}],irpp:'IRPP'},
+ 'Guinée (Conakry)':{zone:'Guinée',devise:'GNF',code:'GNF',tva:18,css:0,is:25,id1:'NIF',id2:'RCCM',org:[{nom:'CNSS',sal:5,pat:18,plaf:2500000}],irpp:'RTS'},
+ 'Guinée-Bissau':{zone:'UEMOA',devise:'FCFA',code:'XOF',tva:19,css:0,is:25,id1:'NIF',id2:'RCCM',org:[{nom:'INPS',sal:8,pat:14,plaf:0}],irpp:'IRPP'},
+ 'RD Congo':{zone:'RDC',devise:'CDF',code:'CDF',tva:16,css:0,is:30,id1:'NIF (Impôt)',id2:'RCCM',org:[{nom:'CNSS',sal:5,pat:9,plaf:0}],irpp:'IPR'},
+ 'Comores':{zone:'Comores',devise:'KMF',code:'KMF',tva:10,css:0,is:35,id1:'NIF',id2:'RCCM',org:[{nom:'CRP/CNSS',sal:3,pat:6,plaf:0}],irpp:'IGR'}
+}
 window.applyCountry=name=>{ const c=COUNTRIES[name]; if(!c)return; S.company.pays=name;
-  S.settings.tva=c.tva; S.settings.css=c.css; S.settings.is=c.is; persist();
-  const warn=(name!=='Gabon')?`\n\n⚠ Taux indicatifs à confirmer auprès de l’administration fiscale locale. Les barèmes de paie (cotisations sociales, IRPP) doivent être ajustés dans Pro-Compta Paye.`:'';
-  alert('Préréglage « '+name+' » appliqué : TVA '+c.tva+' %, CSS '+c.css+' %, IS '+c.is+' %.'+warn); render(); };
+  S.settings.tva=c.tva; S.settings.css=c.css||0; S.settings.is=c.is;
+  S.company.devise=c.devise; S.company.devCode=c.code; S.company.zone=c.zone;
+  S.company.idLabels={id1:c.id1,id2:c.id2};
+  // organismes sociaux -> moteur de paie (2 emplacements réutilisés)
+  S.paie=S.paie||{}; const o1=c.org&&c.org[0], o2=c.org&&c.org[1];
+  if(o1){ S.paie.org1nom=o1.nom; S.paie.cnssSal=o1.sal; S.paie.cnssPat=o1.pat; S.paie.plafondCnss=o1.plaf||0; }
+  if(o2){ S.paie.org2nom=o2.nom; S.paie.cnamgsSal=o2.sal; S.paie.cnamgsPat=o2.pat; } else { S.paie.org2nom=''; S.paie.cnamgsSal=0; S.paie.cnamgsPat=0; }
+  S.paie.irppLib=c.irpp||'IRPP';
+  persist();
+  const orgTxt=(c.org||[]).map(o=>o.nom+' '+o.pat+'%/'+o.sal+'%').join(' · ');
+  const warn=(name!=='Gabon')?'\n\n⚠ Taux indicatifs à confirmer auprès de l administration locale ; ajustez si besoin dans Paie.':'';
+  alert('Pays « '+name+' » appliqué :\n• Monnaie : '+c.devise+' ('+c.code+')\n• TVA '+c.tva+' % · IS '+c.is+' %\n• Social : '+(orgTxt||'—')+'\n• Identifiants : '+c.id1+' / '+c.id2+warn); render(); };
+window.devLabel=()=>S.company.devise||'FCFA';
 
 views.params=()=>{
   const c=S.company, st=S.settings;
   return `<div class="head"><div><h1>Paramètres</h1><p>Pays, identité de la société, devises et taux par défaut.</p></div></div>
   <div class="card" style="border-color:rgba(63,216,236,.4)"><h3>Pays / Zone OHADA</h3><div class="row">
     <div style="max-width:280px"><label class="fl">Pays</label><select class="in" id="pPays" onchange="applyCountry(this.value)">${Object.keys(COUNTRIES).map(n=>`<option value="${esc(n)}"${c.pays===n?' selected':''}>${esc(n)}${n==='Gabon'?' ★ (référence)':''}</option>`).join('')}</select></div></div>
-    <p class="fl" style="margin-top:8px;line-height:1.5">Sélectionner un pays applique ses taux (TVA, CSS, IS). <b style="color:var(--cyan)">Le Gabon est le pays de référence, entièrement validé.</b> Pour les autres pays OHADA, les taux sont <b>indicatifs</b> et doivent être confirmés auprès de l'administration fiscale locale ; les barèmes de paie (cotisations sociales, IRPP) restent à ajuster dans Pro-Compta Paye.</p></div>
+    <p class="fl" style="margin-top:8px;line-height:1.5">Sélectionner un pays applique automatiquement sa <b>monnaie</b>, ses <b>taux</b> (TVA, IS), ses <b>organismes sociaux</b> et les <b>libellés d'identifiants</b>. <b style="color:var(--cyan)">Le Gabon est le pays de référence, entièrement validé.</b> Pour les autres pays, les taux sont <b>indicatifs</b> : confirmez-les auprès de l'administration locale.</p>
+    ${(()=>{const p=COUNTRIES[c.pays]||COUNTRIES['Gabon'];return `<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">
+      <span class="badge">Zone : <b>${esc(p.zone)}</b></span><span class="badge">Monnaie : <b>${esc(p.devise)} (${esc(p.code)})</b></span>
+      <span class="badge">TVA : <b>${p.tva}%</b></span><span class="badge">IS : <b>${p.is}%</b></span>
+      ${(p.org||[]).map(o=>`<span class="badge">${esc(o.nom)} : <b>${o.pat}%</b> pat. / <b>${o.sal}%</b> sal.${o.plaf?' · plafond '+money(o.plaf):''}</span>`).join('')}
+      <span class="badge">Impôt sur salaire : <b>${esc(p.irpp||'IRPP')}</b></span></div>`;})()}</div>
   <div class="card"><h3>Identité de la société</h3><div class="row">
     <div><label class="fl">Raison sociale</label><input class="in" id="pName" value="${esc(c.name||'')}"></div>
-    <div style="max-width:200px"><label class="fl">NIF</label><input class="in" id="pNif" value="${esc(c.nif||'')}"></div></div>
+    <div style="max-width:220px"><label class="fl">${esc((c.idLabels&&c.idLabels.id1)||'NIF')}</label><input class="in" id="pNif" value="${esc(c.nif||'')}"></div></div>
     <div class="row" style="margin-top:10px">
-    <div style="max-width:240px"><label class="fl">RCCM</label><input class="in" id="pRccm" value="${esc(c.rccm||'')}"></div>
+    <div style="max-width:240px"><label class="fl">${esc((c.idLabels&&c.idLabels.id2)||'RCCM')}</label><input class="in" id="pRccm" value="${esc(c.rccm||'')}"></div>
     <div style="max-width:160px"><label class="fl">Exercice</label><input class="in" id="pEx" type="number" value="${c.exercice}"></div></div></div>
+  <div class="card"><h3>💾 Sauvegarde automatique (points de restauration)</h3>
+    <p class="fl" style="line-height:1.5">L'application enregistre automatiquement un <b>instantané chiffré</b> de vos données (au plus un toutes les 10 minutes, 8 derniers conservés). En cas d'erreur, revenez à un état antérieur.</p>
+    ${(APP.snapshots&&APP.snapshots.length)?`<table style="margin-top:8px"><thead><tr><th>Date & heure</th><th>Société</th><th></th></tr></thead><tbody>
+      ${APP.snapshots.slice().reverse().map(sn=>`<tr><td>${new Date(sn.t).toLocaleString('fr-FR')}</td><td>${esc(sn.name||'—')}</td><td class="r"><button class="btn ghost" style="padding:4px 10px" onclick="restoreSnapshot(${sn.t})">Restaurer</button></td></tr>`).join('')}
+    </tbody></table>`:'<p class="fl" style="margin-top:6px">Aucun instantané pour le moment (ils se créent automatiquement au fil de votre travail).</p>'}
+  </div>
   <div class="card"><h3>Taux par défaut</h3><div class="row">
     <div style="max-width:150px"><label class="fl">TVA (%)</label><input class="in" id="pTva" type="number" step="0.1" value="${st.tva}"></div>
     <div style="max-width:150px"><label class="fl">CSS (%)</label><input class="in" id="pCss" type="number" step="0.1" value="${st.css}"></div>
     <div style="max-width:150px"><label class="fl">IS (%)</label><input class="in" id="pIs" type="number" step="0.1" value="${st.is}"></div></div></div>
   <div class="card"><h3>Devises &amp; taux de change (en FCFA)</h3><div class="row">
-    <div style="max-width:200px"><label class="fl">1 EUR = … FCFA</label><input class="in" id="pEur" type="number" step="0.001" value="${st.rates.EUR}"></div>
-    <div style="max-width:200px"><label class="fl">1 USD = … FCFA</label><input class="in" id="pUsd" type="number" step="0.01" value="${st.rates.USD}"></div></div>
+    <div style="max-width:200px"><label class="fl">1 EUR = … ${cur()}</label><input class="in" id="pEur" type="number" step="0.001" value="${st.rates.EUR}"></div>
+    <div style="max-width:200px"><label class="fl">1 USD = … ${cur()}</label><input class="in" id="pUsd" type="number" step="0.01" value="${st.rates.USD}"></div></div>
     <p class="fl" style="margin-top:8px">Le franc CFA est arrimé à l'euro à un taux fixe (1 € = 655,957 FCFA). Le taux du dollar fluctue : mettez-le à jour régulièrement. Ces taux servent de valeurs par défaut lors de la facturation en devise.</p></div>
   <div class="card" style="border-color:rgba(63,216,236,.4)"><h3>Mode d'installation</h3>
     <p class="fl" style="line-height:1.5">Mode actuel : <b style="color:var(--cyan)">${APP.mode==='reseau'?'Poste client (réseau)':'Poste unique'}</b>${APP.mode==='reseau'?(netSession?` — connecté à ${esc(netSession.url)} (licence ${netSession.license?netSession.license.places_utilisees+'/'+netSession.license.places_max:'?'} utilisateurs)`:' — non connecté'):''}</p>
@@ -831,8 +981,40 @@ views.rappro=()=>{
   <div class="card"><div class="row">
     <div style="max-width:300px"><label class="fl">Compte de trésorerie</label><select class="in" id="rpAcc" onchange="render()">${opts}</select></div>
     <div style="max-width:200px"><label class="fl">Solde du relevé bancaire</label><input class="in" id="rpReleve" type="number" step="any" oninput="recalcRappro()" placeholder="0"></div>
-  </div><div id="rpBody" style="margin-top:14px"></div></div>`;
+  </div><div id="rpBody" style="margin-top:14px"></div></div>
+  <div class="card"><h3>📥 Import du relevé bancaire (CSV) & pointage automatique</h3>
+    <p class="fl" style="line-height:1.5">Importez le relevé fourni par votre banque au format CSV. Colonnes acceptées : <b>date ; libellé ; débit ; crédit</b> ou <b>date ; libellé ; montant</b> (séparateur « ; » ou « , »). L'application pointe automatiquement les mouvements dont le montant correspond.</p>
+    <div class="row" style="align-items:flex-end;margin-top:8px">
+      <div><label class="fl">Fichier CSV du relevé</label><input class="in" type="file" id="rpFile" accept=".csv,text/csv"></div>
+      <div style="flex:0"><button class="btn emer" onclick="importReleve()">Importer & pointer</button></div>
+    </div>
+    <div id="rpImport" style="margin-top:12px"></div>
+  </div>`;
 };
+let releveImport=[];
+function parseMontant(x){ if(x==null)return 0; x=String(x).replace(/[^0-9,.\-]/g,'').replace(/\s/g,''); if(x.indexOf(',')>-1&&x.indexOf('.')>-1){ x=x.replace(/\./g,'').replace(',','.'); } else { x=x.replace(',','.'); } return parseFloat(x)||0; }
+window.importReleve=()=>{ const f=document.getElementById('rpFile'); if(!f||!f.files[0]){alert('Choisissez un fichier CSV.');return;}
+  const rd=new FileReader(); rd.onload=ev=>{ const txt=ev.target.result; const firstLine=txt.split(/\r?\n/)[0]||''; const sep=(firstLine.split(';').length>=2)?';':',';
+    const lines=txt.split(/\r?\n/).filter(l=>l.trim()); releveImport=[];
+    lines.forEach((ln,i)=>{ const c=ln.split(sep).map(x=>x.trim()); if(i===0 && /date|libell|montant|debit|cr.dit/i.test(ln)) return;
+      let date=c[0]||'', lib=c[1]||'', montant=0;
+      if(c.length>=4){ const d=parseMontant(c[2]), cr=parseMontant(c[3]); montant=cr-d; } else if(c.length>=3){ montant=parseMontant(c[2]); } else { montant=parseMontant(c[1]); lib=c[0]; }
+      if(montant!==0||lib) releveImport.push({date,lib,montant}); });
+    autoRappro(); };
+  rd.readAsText(f.files[0]); };
+function autoRappro(){ const sel=document.getElementById('rpAcc'); if(!sel){return;} const num=sel.value;
+  const book=[]; S.entries.forEach(e=>e.lines.forEach((l,idx)=>{ if(l.acc===num) book.push({e,l,idx,val:Math.round((+l.debit||0)-(+l.credit||0))}); }));
+  let matched=0; const used=new Set(); const unmatchedRel=[];
+  releveImport.forEach(rl=>{ const target=Math.round(rl.montant);
+    let bi=book.findIndex((b,i)=>!used.has(i)&&b.val===target&&!b.l.pointe);
+    if(bi<0) bi=book.findIndex((b,i)=>!used.has(i)&&Math.abs(b.val)===Math.abs(target)&&!b.l.pointe);
+    if(bi>=0){ used.add(bi); book[bi].l.pointe=true; matched++; } else { unmatchedRel.push(rl); } });
+  persist();
+  const zone=document.getElementById('rpImport');
+  if(zone){ zone.innerHTML=`<div class="balbar"><span>Lignes du relevé : <b>${releveImport.length}</b></span><span>Pointées automatiquement : <b class="ok">${matched}</b></span><span>Non trouvées en compta : <b class="${unmatchedRel.length?'bad':'ok'}">${unmatchedRel.length}</b></span></div>
+    ${unmatchedRel.length?`<p class="fl" style="margin-top:10px">Lignes du relevé sans correspondance comptable (à saisir éventuellement) :</p><table style="margin-top:6px"><thead><tr><th>Date</th><th>Libellé</th><th class="r">Montant</th></tr></thead><tbody>${unmatchedRel.map(u=>`<tr><td>${esc(u.date)}</td><td>${esc(u.lib)}</td><td class="num r">${money(u.montant)} ${cur()}</td></tr>`).join('')}</tbody></table>`:'<p class="fl" style="margin-top:8px;color:var(--cr)">✔ Toutes les lignes du relevé ont été pointées.</p>'}`; }
+  renderRappro();
+}
 function renderRappro(){ const sel=$('#rpAcc'); if(!sel)return; const num=sel.value; if(!num)return; sel.value=num;
   const mv=[]; S.entries.forEach(e=>e.lines.forEach((l,idx)=>{ if(l.acc===num) mv.push({...l,date:e.date,ref:e.ref,eid:e.id,idx}); }));
   mv.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
@@ -868,7 +1050,7 @@ function closeExercice(){
   S.archives[ex]={entries:S.entries, closedAt:todayISO(), resultat:res};
   S.entries=[{id:uid(), date:(ex+1)+'-01-01', journal:'OD', ref:'Report à nouveau '+(ex+1), lines:newLines}];
   S.company.exercice=ex+1;
-  persist(); alert('Exercice '+ex+' clôturé. Résultat : '+money(res)+' FCFA. Ouverture de l\'exercice '+(ex+1)+' avec les soldes reportés.');
+  persist(); alert('Exercice '+ex+' clôturé. Résultat : '+money(res)+' '+cur()+'. Ouverture de l\'exercice '+(ex+1)+' avec les soldes reportés.');
   go('dash');
 }
 window.closeExercice=closeExercice;
@@ -968,7 +1150,7 @@ views.fact=()=>{
     ${factCur.devise!=='FCFA'?`<div style="max-width:150px"><label class="fl">Taux (1 ${factCur.devise} = FCFA)</label><input class="in" id="fcTaux" type="number" step="0.001" value="${factCur.taux}"></div>`:''}</div>
     <table class="linetbl" style="margin-top:12px"><thead><tr><th>Désignation</th><th class="c" style="width:70px">Qté</th><th class="r" style="width:130px">P.U. HT</th><th class="r" style="width:130px">Montant HT</th><th style="width:30px"></th></tr></thead><tbody id="fcLines">${rows}</tbody></table>
     <button class="minibtn" id="fcAddLine" style="margin-top:8px">+ Ligne</button>
-    <div class="balbar"><span>Total HT <b>${money(t.ht)}</b></span><span>TVA <b>${money(t.tva)}</b></span><span>CSS <b>${money(t.css)}</b></span><span>TTC <b style="color:var(--cr)">${money(t.ttc)} ${factCur.devise!=='FCFA'?factCur.devise:''}</b></span>${factCur.devise!=='FCFA'?`<span>= <b>${money(Math.round(t.ttc*(+factCur.taux||1)))} FCFA</b></span>`:''}</div>
+    <div class="balbar"><span>Total HT <b>${money(t.ht)}</b></span><span>TVA <b>${money(t.tva)}</b></span><span>CSS <b>${money(t.css)}</b></span><span>TTC <b style="color:var(--cr)">${money(t.ttc)} ${factCur.devise!=='FCFA'?factCur.devise:''}</b></span>${factCur.devise!=='FCFA'?`<span>= <b>${money(Math.round(t.ttc*(+factCur.taux||1)))} ${cur()}</b></span>`:''}</div>
     <button class="btn emer" id="fcSave" style="margin-top:12px">Enregistrer le document</button></div>
   <div class="card"><h3>Documents émis</h3>${S.invoices.length?`<table><thead><tr><th>N°</th><th>Type</th><th>Client</th><th>Date</th><th class="r">TTC</th><th></th></tr></thead><tbody>${list}</tbody></table>`:'<div class="empty">Aucun document.</div>'}</div>`;
 };
@@ -1003,11 +1185,28 @@ window.factConvertir=id=>{ const dev=S.invoices.find(x=>x.id===id); if(!dev||dev
   S.invoices.push({id:uid(), num, type:'facture', date:todayISO(), echeance:dev.echeance||'', client:dev.client, lines:JSON.parse(JSON.stringify(dev.lines)), tva:dev.tva, cssOn:dev.cssOn, statut:'impayee', comptabilise:false, encaisse:false, converti:false, devisOrigine:dev.num});
   dev.converti=true; persist(); alert('Devis '+dev.num+' converti en facture '+num+'.'); render(); };
 window.factEncaisser=id=>{ const inv=S.invoices.find(x=>x.id===id); if(!inv||!inv.comptabilise)return; const t=invTotals(inv);
-  const ttc=Math.round(t.ttc*(inv.taux||1));
-  if(!S.accounts.some(a=>a.num==='521')) S.accounts.push({num:'521',label:'Banque'}); const cAcc=inv.clientAcc||tiersAccount(inv.client,'client');
-  S.entries.push({id:uid(),date:todayISO(),journal:'BQ',ref:'Encaissement '+inv.num,
-    lines:[{acc:'521',label:'Règlement '+(inv.client||''),debit:ttc,credit:0},{acc:cAcc,label:'Client '+(inv.client||''),debit:0,credit:ttc}]});
-  inv.encaisse=true; inv.statut='payee'; persist(); alert('Encaissement de '+money(ttc)+' FCFA comptabilisé.'); render(); };
+  const devise=inv.devise||'FCFA'; const tauxFacture=inv.taux||1;
+  // taux de règlement : taux du jour (paramètres) si devise étrangère, sinon taux facture
+  let tauxRegl=tauxFacture;
+  if(devise!=='FCFA'){ const r=(S.settings.rates&&S.settings.rates[devise])||0; tauxRegl=r>0?r:tauxFacture; }
+  const montantFacture=Math.round(t.ttc*tauxFacture);   // montant comptabilisé sur le compte client
+  const montantRecu=Math.round(t.ttc*tauxRegl);          // encaissé au taux du jour
+  const ecart=montantRecu-montantFacture;                // >0 gain, <0 perte
+  if(!S.accounts.some(a=>a.num==='521')) S.accounts.push({num:'521',label:'Banque'});
+  const cAcc=inv.clientAcc||tiersAccount(inv.client,'client');
+  const lines=[{acc:'521',label:'Règlement '+(inv.client||''),debit:montantRecu,credit:0},
+               {acc:cAcc,label:'Client '+(inv.client||''),debit:0,credit:montantFacture}];
+  if(ecart>0){ if(!S.accounts.some(a=>a.num==='776')) S.accounts.push({num:'776',label:'Gains de change'});
+    lines.push({acc:'776',label:'Gain de change '+inv.num,debit:0,credit:ecart}); }
+  else if(ecart<0){ if(!S.accounts.some(a=>a.num==='676')) S.accounts.push({num:'676',label:'Pertes de change'});
+    lines.push({acc:'676',label:'Perte de change '+inv.num,debit:-ecart,credit:0}); }
+  const dv=devise!=='FCFA'?(' — '+t.ttc+' '+devise+' au taux '+tauxRegl):'';
+  S.entries.push({id:uid(),date:todayISO(),journal:'BQ',ref:'Encaissement '+inv.num+dv,lines});
+  inv.encaisse=true; inv.statut='payee'; persist();
+  let msg='Encaissement de '+money(montantRecu)+' '+cur()+' comptabilisé.';
+  if(ecart>0) msg+='\n💹 Gain de change : '+money(ecart)+' '+cur()+' (compte 776).';
+  else if(ecart<0) msg+='\n📉 Perte de change : '+money(-ecart)+' '+cur()+' (compte 676).';
+  alert(msg); render(); };
 
 /* ---------- Achats & règlements fournisseurs ---------- */
 let achCur=null;
@@ -1058,7 +1257,7 @@ window.achComptabiliser=id=>{ const p=S.purchases.find(x=>x.id===id); if(!p)retu
     lines.push({acc:'4423',label:'Retenue à la source',debit:0,credit:ret}); }
   else lines.push({acc:fAcc,label:'Fournisseur '+(p.fourn||''),debit:0,credit:t.ttc});
   S.entries.push({id:uid(),date:p.date,journal:'ACH',ref:'Facture fourn. '+p.num+' — '+(p.fourn||''),lines});
-  p.comptabilise=true; persist(); alert('Facture fournisseur '+p.num+' comptabilisée (compte '+fAcc+')'+(ret>0?' — retenue '+money(ret)+' FCFA.':'.')); render(); };
+  p.comptabilise=true; persist(); alert('Facture fournisseur '+p.num+' comptabilisée (compte '+fAcc+')'+(ret>0?' — retenue '+money(ret)+' '+cur()+'.':'.')); render(); };
 window.achRegler=id=>{ const p=S.purchases.find(x=>x.id===id); if(!p||!p.comptabilise)return; const t=achTotals(p);
   const net=t.ttc-(+p.retenueAmt||0);
   if(!S.accounts.some(a=>a.num==='521')) S.accounts.push({num:'521',label:'Banque'}); const fAcc=p.fournAcc||tiersAccount(p.fourn,'fourn');
@@ -1135,7 +1334,7 @@ window.liquiderTVA=()=>{ const per=tvaPer; const collectee=moveInMonth('4431',pe
   const d=lines.reduce((a,l)=>a+l.debit,0), c=lines.reduce((a,l)=>a+l.credit,0);
   if(Math.round(d-c)!==0){ alert('Déséquilibre ('+money(d-c)+').'); return; }
   S.entries.push({id:uid(),date:per+'-28',journal:'OD',ref:'Liquidation TVA '+per,lines});
-  persist(); alert('Liquidation de TVA '+per+' comptabilisée'+(net>0?' — TVA à payer : '+money(net)+' FCFA.':net<0?' — crédit de TVA reporté : '+money(-net)+' FCFA.':'.')); render(); };
+  persist(); alert('Liquidation de TVA '+per+' comptabilisée'+(net>0?' — TVA à payer : '+money(net)+' '+cur()+'.':net<0?' — crédit de TVA reporté : '+money(-net)+' '+cur()+'.':'.')); render(); };
 window.payerTVA=()=>{ const due=prefixBalance('4441').solde*-1; // 4441 créditeur => solde négatif
   if(due<=0){ alert('Aucune TVA due à payer (compte 4441).'); return; }
   if(!confirm('Payer la TVA due ('+money(due)+' FCFA) par la banque ?'))return;
@@ -1266,12 +1465,12 @@ views.paye=()=>{
     body=`<div class="card"><h3>Taux de cotisations &amp; impôts (Gabon ${S.company.exercice})</h3>
       <div class="row"><div><label class="fl">CNSS salariale (%)</label><input class="in pr" data-k="cnssSal" type="number" step="0.1" value="${R.cnssSal}"></div>
         <div><label class="fl">CNSS patronale (%)</label><input class="in pr" data-k="cnssPat" type="number" step="0.1" value="${R.cnssPat}"></div>
-        <div><label class="fl">Plafond CNSS (FCFA/mois)</label><input class="in pr" data-k="plafondCnss" type="number" value="${R.plafondCnss}"></div></div>
+        <div><label class="fl">Plafond CNSS (${cur()}/mois)</label><input class="in pr" data-k="plafondCnss" type="number" value="${R.plafondCnss}"></div></div>
       <div class="row" style="margin-top:10px"><div><label class="fl">CNAMGS salariale (%)</label><input class="in pr" data-k="cnamgsSal" type="number" step="0.1" value="${R.cnamgsSal}"></div>
         <div><label class="fl">CNAMGS patronale (%)</label><input class="in pr" data-k="cnamgsPat" type="number" step="0.1" value="${R.cnamgsPat}"></div></div>
       <div class="row" style="margin-top:10px"><div><label class="fl">TCTS (%)</label><input class="in pr" data-k="tcts" type="number" step="0.1" value="${R.tcts}"></div>
-        <div><label class="fl">Seuil TCTS (FCFA/mois)</label><input class="in pr" data-k="tctsSeuil" type="number" value="${R.tctsSeuil}"></div>
-        <div><label class="fl">Plafond abattement IRPP (FCFA/mois)</label><input class="in pr" data-k="abattPlafond" type="number" value="${R.abattPlafond}"></div></div>
+        <div><label class="fl">Seuil TCTS (${cur()}/mois)</label><input class="in pr" data-k="tctsSeuil" type="number" value="${R.tctsSeuil}"></div>
+        <div><label class="fl">Plafond abattement IRPP (${cur()}/mois)</label><input class="in pr" data-k="abattPlafond" type="number" value="${R.abattPlafond}"></div></div>
       <button class="btn emer" id="saveParRates" style="margin-top:12px">Enregistrer les taux</button>
       <p class="fl" style="margin-top:10px;line-height:1.5">Réforme CNSS de janvier 2026 : part salariale portée à 5 % et patronale à 18 %. IRPP : barème progressif officiel (0 % à 35 %, 8 tranches) avec abattement 20 % et quotient familial — intégré et non modifiable ici. Vérifiez les taux auprès de la CNSS / DGI avant diffusion des bulletins.</p></div>`;
   }
@@ -1306,9 +1505,9 @@ function bulletinHTML(e, per){
       ${line('IRPP (retenue à la source)',c.netImp,null,-c.irpp,'dr')}
       ${c.avant?line('Avantages en nature (déjà perçus)',null,null,-c.avant,'dr'):''}
       ${c.acompte?line('Acompte / avance sur salaire',null,null,-c.acompte,'dr'):''}
-      <tr><td style="font-weight:700;color:var(--cr)">NET À PAYER</td><td></td><td></td><td class="num r" style="font-weight:700;color:var(--cr);font-size:15px">${money(c.net)} FCFA</td></tr>
+      <tr><td style="font-weight:700;color:var(--cr)">NET À PAYER</td><td></td><td></td><td class="num r" style="font-weight:700;color:var(--cr);font-size:15px">${money(c.net)} ${cur()}</td></tr>
     </tbody></table>
-    <div class="balbar" style="margin-top:12px;font-size:12px"><span>Charges patronales : CNSS <b>${money(c.cnssPat)}</b> · CNAMGS <b>${money(c.cnamgsPat)}</b></span><span>Coût total employeur <b>${money(c.coutEmployeur)} FCFA</b></span></div>
+    <div class="balbar" style="margin-top:12px;font-size:12px"><span>Charges patronales : CNSS <b>${money(c.cnssPat)}</b> · CNAMGS <b>${money(c.cnamgsPat)}</b></span><span>Coût total employeur <b>${money(c.coutEmployeur)} ${cur()}</b></span></div>
     <p class="fl" style="margin-top:8px">Net en lettres : ${esc(cap(enLettresPaie(c.net)))} francs CFA.</p>
   </div>`;
 }
@@ -1523,19 +1722,517 @@ views.lic=()=>{
     ${(!currentUser||currentUser.role==='admin')?`<div class="row">
       <div style="max-width:160px"><label class="fl">Identifiant</label><input class="in" id="suLogin"></div>
       <div style="max-width:160px"><label class="fl">Mot de passe</label><input class="in" id="suPwd" type="password"></div>
-      <div style="max-width:180px"><label class="fl">Rôle</label><select class="in" id="suRole"><option value="admin">Administrateur</option><option value="comptable">Comptable</option><option value="paie">Gestion de paie</option><option value="consultation">Consultation</option></select></div>
+      <div style="max-width:180px"><label class="fl">Rôle</label><select class="in" id="suRole"><option value="comptable">Comptable</option><option value="paie">Gestion de paie</option><option value="consultation">Consultation</option><option value="admin">Directeur Financier (admin)</option></select></div>
       <div style="flex:0;align-self:flex-end"><button class="btn emer" onclick="addUser()">Créer</button></div></div>
-      ${APP.users.length?`<table style="margin-top:12px"><thead><tr><th>Identifiant</th><th>Rôle</th><th></th></tr></thead><tbody>${APP.users.map(u=>`<tr><td>${esc(u.login)}</td><td>${ROLE_LABEL[u.role]||u.role}</td><td class="r"><button class="del" onclick="delUser('${esc(u.login)}')">×</button></td></tr>`).join('')}</tbody></table>`:'<p class="fl" style="margin-top:10px">Aucun utilisateur : l\'application est ouverte (accès administrateur). Créez des comptes pour activer la connexion sécurisée.</p>'}
+      <div style="margin-top:10px"><label class="fl">Banques autorisées pour cet utilisateur <span style="color:var(--mut)">(ignoré pour un Directeur Financier, qui a tout accès)</span></label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">${BANKS.map(b=>`<label style="font-size:12px;display:flex;align-items:center;gap:5px;background:#0C2A3D;border:1px solid var(--line);border-radius:8px;padding:5px 9px;cursor:pointer"><input type="checkbox" class="bkchk" value="${b.id}"> ${b.ic} ${esc(b.label)}</label>`).join('')}</div></div>
+      ${APP.users.length?`<table style="margin-top:12px"><thead><tr><th>Identifiant</th><th>Rôle</th><th>Banques</th><th></th></tr></thead><tbody>${APP.users.map(u=>`<tr><td>${esc(u.login)}</td><td>${ROLE_LABEL[u.role]||u.role}</td><td style="font-size:11px">${u.role==='admin'?'<b>Toutes</b>':(Array.isArray(u.banks)&&u.banks.length?u.banks.map(id=>{const b=BANKS.find(x=>x.id===id);return b?b.label.replace('Banque ',''):id;}).join(', '):'<span style=\'color:var(--mut)\'>défaut du rôle</span>')}</td><td class="r"><button class="del" onclick="delUser('${esc(u.login)}')">×</button></td></tr>`).join('')}</tbody></table>`:'<p class="fl" style="margin-top:10px">Aucun utilisateur : l\'application est ouverte (accès administrateur). Créez des comptes pour activer la connexion sécurisée.</p>'}
       <p class="fl" style="margin-top:8px;line-height:1.5">Rôles : <b>Comptable</b> (compta, ventes, achats, stock, fiscal), <b>Paie</b> (module paie uniquement), <b>Consultation</b> (lecture seule). Protection locale à but de cloisonnement — pour une sécurité forte, prévoir un serveur.</p>`
       :'<p class="fl">Gestion réservée à l\'administrateur.</p>'}
     ${currentUser?`<button class="minibtn" style="margin-top:12px" onclick="logout()">Se déconnecter (${esc(currentUser.login)})</button>`:''}
-  </div>`;
+  </div>
+  ${(currentUser&&currentUser.role==='admin')?(()=>{ const brk=auditVerify(); const A=(APP.audit||[]).slice(-20).reverse();
+    return `<div class="card"><h3>🔐 Journal d'audit (inviolable)</h3>
+      <p class="fl" style="line-height:1.5">Chaque action sensible est horodatée et <b>chaînée par empreinte</b> : toute modification frauduleuse d'un enregistrement rompt la chaîne et devient détectable. Les données de l'application sont par ailleurs <b>chiffrées</b> dans ce navigateur.</p>
+      <div style="margin:10px 0;padding:10px 12px;border-radius:10px;font-weight:700;${brk===0?'background:rgba(46,158,91,.12);color:#1c6c3d':'background:rgba(214,69,65,.12);color:#a4302c'}">
+        ${brk===0?'✔ Intégrité vérifiée — '+(APP.audit||[]).length+' événement(s), aucune altération détectée.':'✖ ALERTE : chaîne d\'audit rompue à l\'événement n°'+brk+' — falsification détectée.'}
+      </div>
+      ${A.length?`<table style="margin-top:6px"><thead><tr><th>N°</th><th>Date/heure</th><th>Utilisateur</th><th>Action</th><th>Détail</th></tr></thead><tbody>${A.map(r=>`<tr><td>${r.i}</td><td style="font-size:11px">${new Date(r.t).toLocaleString('fr-FR')}</td><td>${esc(r.user)}</td><td><b>${esc(r.act)}</b></td><td>${esc(r.det||'')}</td></tr>`).join('')}</tbody></table>`:'<p class="fl">Aucun événement enregistré pour le moment.</p>'}
+      <p class="fl" style="margin-top:8px">20 derniers événements affichés · ${(APP.audit||[]).length} au total.</p>
+    </div>`; })():''}`;
 };
 
 /* ---------- Rendu & navigation ---------- */
-function render(){ if(APP.users.length && !currentUser){ showLogin(); applyLang(); return; }
+/* ===== BRIQUE 3 — Analyse & Graphiques (SVG, sans dépendance) ===== */
+const GMOIS=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+const GCOLS=['#1DBB7F','#E0B84C','#5AA9E6','#E0605C','#9B8CFF','#48C9B0','#F08A5D','#C0CA33','#EC7063'];
+function gSvgGrouped(a,b){ const W=660,H=250,pad=34,inner=W-2*pad,slot=inner/12,bw=Math.min(16,slot/2-2);
+  const mx=Math.max(1,...a,...b); let g='';
+  for(let k=1;k<=3;k++){ const y=H-28-(H-58)*k/3; g+=`<line x1="${pad}" y1="${y}" x2="${W-6}" y2="${y}" stroke="#12405a" stroke-width="1"/>`; g+=`<text x="4" y="${y+3}" font-size="8" fill="#5f89a3">${money(mx*k/3)}</text>`; }
+  for(let i=0;i<12;i++){ const xc=pad+i*slot+slot/2; const ha=(a[i]/mx)*(H-58), hb=(b[i]/mx)*(H-58);
+    g+=`<rect x="${xc-bw-1}" y="${H-28-ha}" width="${bw}" height="${Math.max(0,ha)}" rx="2" fill="#1DBB7F"/>`;
+    g+=`<rect x="${xc+1}" y="${H-28-hb}" width="${bw}" height="${Math.max(0,hb)}" rx="2" fill="#E0605C"/>`;
+    g+=`<text x="${xc}" y="${H-12}" font-size="9" fill="#7fa8c0" text-anchor="middle">${GMOIS[i]}</text>`; }
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}</svg>`; }
+function gDonut(items){ const tot=items.reduce((s,x)=>s+x.val,0)||1; let a0=-Math.PI/2,seg=''; const R=82,r=50,cx=100,cy=100;
+  items.forEach((it,i)=>{ const frac=it.val/tot, a1=a0+frac*2*Math.PI;
+    const x0=cx+R*Math.cos(a0),y0=cy+R*Math.sin(a0),x1=cx+R*Math.cos(a1),y1=cy+R*Math.sin(a1);
+    const xi1=cx+r*Math.cos(a1),yi1=cy+r*Math.sin(a1),xi0=cx+r*Math.cos(a0),yi0=cy+r*Math.sin(a0), lg=frac>0.5?1:0;
+    seg+=`<path d="M${x0},${y0} A${R},${R} 0 ${lg} 1 ${x1},${y1} L${xi1},${yi1} A${r},${r} 0 ${lg} 0 ${xi0},${yi0} Z" fill="${GCOLS[i%GCOLS.length]}"/>`; a0=a1; });
+  const leg=items.map((it,i)=>`<div style="display:flex;align-items:center;gap:6px;font-size:11.5px;margin:3px 0"><span style="width:11px;height:11px;border-radius:3px;background:${GCOLS[i%GCOLS.length]};flex:0 0 auto"></span>${esc(it.label)} — <b>${money(it.val)}</b></div>`).join('');
+  return `<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center"><svg viewBox="0 0 200 200" style="width:180px;flex:0 0 auto">${seg||'<circle cx=100 cy=100 r=82 fill=#0C2A3D/>'}</svg><div>${leg||'<span class=fl>Aucune charge enregistrée.</span>'}</div></div>`; }
+function gHBars(items){ const mx=Math.max(1,...items.map(x=>Math.abs(x.val)));
+  return items.map(it=>{ const w=Math.abs(it.val)/mx*100, col=it.val>=0?'#1DBB7F':'#E0605C';
+    return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span>${esc(it.label)}</span><b style="color:${col}">${money(it.val)}</b></div><div style="background:#0C2A3D;border-radius:6px;height:13px;margin-top:3px"><div style="height:13px;border-radius:6px;width:${w}%;background:${col};min-width:2px"></div></div></div>`; }).join(''); }
+
+views.graph=()=>{
+  const yr=String(S.company.exercice); let ca=Array(12).fill(0), ch=Array(12).fill(0);
+  S.entries.forEach(e=>{ const d=e.date||''; if(d.slice(0,4)!==yr) return; const m=parseInt(d.slice(5,7),10)-1; if(m<0||m>11)return;
+    e.lines.forEach(l=>{ const cl=(l.acc||'')[0]; if(cl==='7') ca[m]+=(+l.credit||0)-(+l.debit||0); if(cl==='6') ch[m]+=(+l.debit||0)-(+l.credit||0); }); });
+  const caT=ca.reduce((a,b)=>a+b,0), chT=ch.reduce((a,b)=>a+b,0), res=caT-chT;
+  const treso=prefixBalance('52').solde+prefixBalance('53').solde+prefixBalance('54').solde+prefixBalance('57').solde;
+  const natL={'60':'Achats','61':'Transports','62':'Services extérieurs A','63':'Services extérieurs B','64':'Impôts & taxes','65':'Autres charges','66':'Charges de personnel','67':'Frais financiers','68':'Dotations amort.'};
+  const nat=Object.keys(natL).map(p=>({label:natL[p],val:Math.max(0,prefixBalance(p).solde)})).filter(x=>x.val>0).sort((a,b)=>b.val-a.val);
+  const achats=prefixBalance('60').solde, servExt=prefixBalance('61').solde+prefixBalance('62').solde+prefixBalance('63').solde, perso=prefixBalance('66').solde, impots=prefixBalance('64').solde;
+  const marge=caT-achats, va=caT-achats-servExt, ebe=va-perso-impots;
+  const sig=[{label:'Chiffre d\'affaires',val:caT},{label:'Marge brute',val:marge},{label:'Valeur ajoutée',val:va},{label:'Excédent brut d\'exploitation',val:ebe},{label:'Résultat net',val:res}];
+  const pct=(a,b)=>b?Math.round(a/b*1000)/10:0;
+  const kpi=(t,v,c)=>`<div class="card" style="padding:14px"><div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.4px">${t}</div><div style="font-size:22px;font-weight:800;margin-top:5px;color:${c}">${money(v)}</div></div>`;
+  return `<div class="head"><div><h1>📊 Analyse & Graphiques</h1><p>${esc(S.company.name)} — exercice ${esc(yr)}</p></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px">
+      ${kpi('Chiffre d\'affaires',caT,'#1DBB7F')}${kpi('Total charges',chT,'#E0605C')}${kpi('Résultat net',res,res>=0?'#1DBB7F':'#E0605C')}${kpi('Trésorerie',treso,'#5AA9E6')}</div>
+    <div class="card"><h3>Chiffre d'affaires vs Charges — par mois</h3>
+      <div style="display:flex;gap:16px;font-size:12px;margin:6px 0"><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:#1DBB7F;border-radius:3px"></span>Produits (CA)</span><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:#E0605C;border-radius:3px"></span>Charges</span></div>
+      ${gSvgGrouped(ca,ch)}
+      ${caT===0&&chT===0?'<p class="fl" style="margin-top:8px">Aucune écriture sur l\'exercice ${yr}. Saisissez des écritures pour alimenter les graphiques.</p>':''}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px" class="gcols">
+      <div class="card"><h3>Répartition des charges par nature</h3>${gDonut(nat)}</div>
+      <div class="card"><h3>Soldes intermédiaires de gestion</h3>${gHBars(sig)}</div>
+    </div>
+    <div class="card" style="margin-top:14px"><h3>Ratios clés</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+        <div><div class="fl">Taux de charges</div><div style="font-size:20px;font-weight:800;color:#E0B84C">${pct(chT,caT)}%</div><div class="fl">des charges / CA</div></div>
+        <div><div class="fl">Marge nette</div><div style="font-size:20px;font-weight:800;color:${res>=0?'#1DBB7F':'#E0605C'}">${pct(res,caT)}%</div><div class="fl">résultat / CA</div></div>
+        <div><div class="fl">Poids du personnel</div><div style="font-size:20px;font-weight:800;color:#5AA9E6">${pct(perso,caT)}%</div><div class="fl">charges de personnel / CA</div></div>
+        <div><div class="fl">Taux de valeur ajoutée</div><div style="font-size:20px;font-weight:800;color:#9B8CFF">${pct(va,caT)}%</div><div class="fl">VA / CA</div></div>
+      </div></div>
+    <style>@media(max-width:720px){.gcols{grid-template-columns:1fr !important}}</style>`;
+};
+/* ===== BRIQUE 4 — Banque Fiscal : Liasse fiscale OHADA révisée ===== */
+let liTab='bilan';
+window.liGo=t=>{ liTab=t; render(); };
+function liRow(ref,lib,val,bold){ return `<tr style="${bold?'font-weight:700;background:rgba(255,255,255,.03)':''}"><td style="width:44px;color:var(--mut)">${ref||''}</td><td>${lib}</td><td class="num r" style="color:${val<0?'var(--dr)':''}">${val===''?'':money(val)}</td></tr>`; }
+views.liasse=()=>{
+  const ex=S.company.exercice;
+  const credit=p=>-prefixBalance(p).solde, debit=p=>prefixBalance(p).solde;
+  // Résultat (repris de l'état existant)
+  const ca=credit('70'); const achats=debit('60'); const servExt=debit('61')+debit('62')+debit('63');
+  const perso=debit('66'), impots=debit('64'), dotations=debit('68'), chFin=debit('67');
+  const prodFin=credit('77'), reprises=credit('78'), autresP=credit('71')+credit('72')+credit('75');
+  const va=ca+autresP-achats-servExt; const ebe=va-perso-impots; const rExp=ebe-dotations+reprises;
+  const rFin=prodFin-chFin; const resAvIS=rExp+rFin;
+  const isRate=+((S.settings&&S.settings.is)||30); const imf=Math.max(Math.round(ca*0.01),0);
+  const isDu=resAvIS>0?Math.max(Math.round(resAvIS*isRate/100),imf):imf; const resNet=resAvIS-isDu;
+  // Bilan
+  const amortInc=credit('2801'), amortCorp=credit('28')-amortInc;
+  const immoInc=Math.max(debit('21')-amortInc,0), immoCorp=Math.max(debit('22')+debit('23')+debit('24')-amortCorp,0), immoFin=debit('26')+debit('27');
+  const actImmo=immoInc+immoCorp+immoFin;
+  const stocks=Math.max(debit('3')-credit('39'),0), clients=debit('41'), autresCrea=Math.max(debit('44')+debit('42')+debit('47')+debit('48'),0);
+  const actCirc=stocks+clients+autresCrea; const tresoA=Math.max(debit('5'),0); const totActif=actImmo+actCirc+tresoA;
+  const capital=credit('101'), reserves=credit('11')+credit('14'), ran=credit('12');
+  const capPropres=capital+reserves+ran+resNet;
+  const dettesFin=credit('16')+credit('17')+credit('18');
+  const fourn=credit('40'), fiscSoc=credit('42')+credit('43')+credit('44')+(resAvIS>0?isDu:0), autresD=credit('47')+credit('48');
+  const passCirc=fourn+fiscSoc+autresD; const tresoP=Math.max(-debit('5'),0);
+  const totPassif=capPropres+dettesFin+passCirc+tresoP;
+  const ecart=totActif-totPassif;
+
+  const tab=(id,lib)=>`<button class="btn ${liTab===id?'':'ghost'}" style="${liTab===id?'':'opacity:.8'}" onclick="liGo('${id}')">${lib}</button>`;
+  let body='';
+  if(liTab==='bilan'){
+    body=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" class="licols">
+      <div class="card"><h3>BILAN — ACTIF (net) · exercice ${ex}</h3><table><tbody>
+        ${liRow('','ACTIF IMMOBILISÉ','',1)}
+        ${liRow('AE','Immobilisations incorporelles',immoInc)}
+        ${liRow('AI','Immobilisations corporelles',immoCorp)}
+        ${liRow('AN','Immobilisations financières',immoFin)}
+        ${liRow('AZ','Total actif immobilisé',actImmo,1)}
+        ${liRow('','ACTIF CIRCULANT','',1)}
+        ${liRow('BB','Stocks et en-cours',stocks)}
+        ${liRow('BH','Créances clients',clients)}
+        ${liRow('BI','Autres créances',autresCrea)}
+        ${liRow('BK','Total actif circulant',actCirc,1)}
+        ${liRow('BS','TRÉSORERIE-ACTIF',tresoA,1)}
+        ${liRow('BZ','TOTAL GÉNÉRAL ACTIF',totActif,1)}
+      </tbody></table></div>
+      <div class="card"><h3>BILAN — PASSIF · exercice ${ex}</h3><table><tbody>
+        ${liRow('','CAPITAUX PROPRES','',1)}
+        ${liRow('CA','Capital',capital)}
+        ${liRow('CD','Réserves',reserves)}
+        ${liRow('CB','Report à nouveau',ran)}
+        ${liRow('CH','Résultat net de l\'exercice',resNet)}
+        ${liRow('CP','Total capitaux propres',capPropres,1)}
+        ${liRow('DA','DETTES FINANCIÈRES',dettesFin,1)}
+        ${liRow('','PASSIF CIRCULANT','',1)}
+        ${liRow('DH','Fournisseurs',fourn)}
+        ${liRow('DI','Dettes fiscales & sociales',fiscSoc)}
+        ${liRow('DM','Autres dettes',autresD)}
+        ${liRow('DP','Total passif circulant',passCirc,1)}
+        ${liRow('DR','TRÉSORERIE-PASSIF',tresoP,1)}
+        ${liRow('DZ','TOTAL GÉNÉRAL PASSIF',totPassif,1)}
+      </tbody></table></div></div>
+      <div class="balbar" style="margin-top:12px">Équilibre du bilan : <b style="color:${Math.abs(ecart)<1?'var(--cr)':'var(--dr)'}">${Math.abs(ecart)<1?'✔ Actif = Passif':('Écart de '+money(ecart)+' '+cur()+' — vérifiez les à-nouveaux')}</b></div>`;
+  } else if(liTab==='resultat'){
+    body=`<div class="card"><h3>COMPTE DE RÉSULTAT (par nature) · exercice ${ex}</h3><table style="max-width:640px"><tbody>
+      ${liRow('TA','Ventes / Chiffre d\'affaires',ca,1)}
+      ${liRow('TH','Autres produits',autresP)}
+      ${liRow('RA','Achats consommés',-achats)}
+      ${liRow('RC','Services extérieurs',-servExt)}
+      ${liRow('XA','VALEUR AJOUTÉE',va,1)}
+      ${liRow('RD','Charges de personnel',-perso)}
+      ${liRow('RB','Impôts et taxes',-impots)}
+      ${liRow('XB','EXCÉDENT BRUT D\'EXPLOITATION',ebe,1)}
+      ${liRow('RE','Dotations aux amortissements',-dotations)}
+      ${liRow('TJ','Reprises de provisions',reprises)}
+      ${liRow('XC','RÉSULTAT D\'EXPLOITATION',rExp,1)}
+      ${liRow('TK','Produits financiers',prodFin)}
+      ${liRow('RF','Charges financières',-chFin)}
+      ${liRow('XD','RÉSULTAT FINANCIER',rFin,1)}
+      ${liRow('XE','RÉSULTAT AVANT IMPÔT',resAvIS,1)}
+      ${liRow('RK','Impôt sur le résultat (IS)',-isDu)}
+      ${liRow('XI','RÉSULTAT NET',resNet,1)}
+    </tbody></table></div>`;
+  } else if(liTab==='flux'){
+    const caf=resNet+dotations-reprises;
+    const varBFR=-(stocks+clients-fourn); // indicatif
+    const fluxOp=caf+varBFR; const fluxInv=-actImmo; const fluxFin=dettesFin+capital;
+    const varTreso=fluxOp+fluxInv+fluxFin;
+    body=`<div class="card"><h3>TABLEAU DES FLUX DE TRÉSORERIE · exercice ${ex}</h3><table style="max-width:640px"><tbody>
+      ${liRow('FA','Capacité d\'autofinancement globale (CAFG)',caf,1)}
+      ${liRow('','Variation du besoin en fonds de roulement',varBFR)}
+      ${liRow('ZB','Flux de trésorerie des activités opérationnelles',fluxOp,1)}
+      ${liRow('ZC','Flux de trésorerie des activités d\'investissement',fluxInv,1)}
+      ${liRow('ZD','Flux de trésorerie des activités de financement',fluxFin,1)}
+      ${liRow('ZG','VARIATION DE LA TRÉSORERIE NETTE',varTreso,1)}
+      ${liRow('ZH','Trésorerie nette à la clôture',tresoA-tresoP,1)}
+    </tbody></table>
+    <p class="fl" style="margin-top:8px">Tableau établi selon le modèle OHADA. En l'absence de bilan d'ouverture (à-nouveaux), les variations sont estimées sur les soldes de l'exercice — elles s'affineront après la première clôture.</p></div>`;
+  } else if(liTab==='notes'){
+    const NOTES=['Dettes garanties par des sûretés réelles','Informations obligatoires','Immobilisations','Immobilisations : biens en crédit-bail','Amortissements','Provisions pour dépréciation','Stocks','Clients & autres débiteurs','Titres de placement','Disponibilités','Écarts de conversion-actif','Capitaux propres (variation)','Primes & réserves','Subventions & provisions réglementées','Autres fonds propres','Dettes financières & ressources assimilées','Fournisseurs & autres créditeurs','Dettes fiscales & sociales','Écarts de conversion-passif','Engagements de retraite','Chiffre d\'affaires','Achats','Transports','Services extérieurs','Impôts et taxes','Autres charges','Charges de personnel','Effectifs, masse salariale','Rémunérations dirigeants','Charges & produits financiers','Charges & produits HAO','Répartition du résultat','Production de l\'exercice','Achats destinés à la production','Fiche de synthèse','Liste des informations sociales'];
+    const filled={3:immoInc+immoCorp+immoFin,5:amortInc+amortCorp,7:stocks,8:clients,16:dettesFin,17:fourn,18:fiscSoc,21:ca,22:achats,24:servExt,25:impots,27:perso};
+    body=`<div class="card"><h3>NOTES ANNEXES (1 à 36) — SYSCOHADA révisé · exercice ${ex}</h3>
+      <p class="fl">Les notes annexes complètent et commentent le bilan et le compte de résultat. Les montants ci-dessous sont repris automatiquement de votre comptabilité.</p>
+      <table style="margin-top:8px"><thead><tr><th style="width:44px">Note</th><th>Intitulé</th><th class="r">Montant repris</th></tr></thead><tbody>
+      ${NOTES.map((t,i)=>{const n=i+1;const v=filled[n];return `<tr><td>Note ${n}</td><td>${t}</td><td class="num r">${v!=null?money(v):'<span style=\'color:var(--mut)\'>—</span>'}</td></tr>`;}).join('')}
+      </tbody></table></div>`;
+  } else if(liTab==='decl'){
+    const tvaCol=credit('443'), tvaDed=debit('445'), tvaDue=tvaCol-tvaDed;
+    body=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" class="licols">
+      <div class="card"><h3>Déclaration de TVA — préparée</h3><table><tbody>
+        ${liRow('','TVA collectée (comptes 443)',tvaCol)}
+        ${liRow('','TVA déductible (comptes 445)',tvaDed)}
+        ${liRow('',tvaDue>=0?'TVA à décaisser':'Crédit de TVA à reporter',Math.abs(tvaDue),1)}
+      </tbody></table>
+      <p class="fl" style="margin-top:8px">Taux de droit commun : 18%. Déclaration à déposer sur la plateforme e-Tax (DGI).</p>
+      <button class="btn ghost" style="margin-top:8px" onclick="window.print()">Imprimer</button></div>
+      <div class="card"><h3>Impôt sur les sociétés (IS) — préparé</h3><table><tbody>
+        ${liRow('','Résultat comptable avant impôt',resAvIS)}
+        ${liRow('','Résultat fiscal (base)',resAvIS)}
+        ${liRow('','Taux IS appliqué','')}
+        <tr><td></td><td>Taux</td><td class="num r">${isRate}%</td></tr>
+        ${liRow('','Impôt minimum forfaitaire (1% du CA)',imf)}
+        ${liRow('','IS DÛ (max IS / IMF)',isDu,1)}
+      </tbody></table>
+      <p class="fl" style="margin-top:8px">Résultat fiscal = résultat comptable (avant réintégrations/déductions manuelles). Déclaration annuelle à déposer auprès de la DGI.</p>
+      <button class="btn ghost" style="margin-top:8px" onclick="window.print()">Imprimer</button></div></div>`;
+  }
+  return `<div class="head"><div><h1>％ Banque Fiscal — Liasse fiscale OHADA</h1><p>${esc(S.company.name)} — exercice ${ex} · SYSCOHADA révisé</p></div><div><button class="btn ghost" onclick="window.print()">Imprimer</button></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">${tab('bilan','Bilan')}${tab('resultat','Compte de résultat')}${tab('flux','Flux de trésorerie')}${tab('notes','Notes annexes')}${tab('decl','Déclarations')}</div>
+    ${body}
+    <style>@media(max-width:720px){.licols{grid-template-columns:1fr !important}}</style>`;
+};
+
+/* ===== BRIQUE 5 — Banque Social : CNSS, CNAMGS, DTS trimestrielle, DAS ===== */
+let dtsYear=String(new Date().getFullYear()), dtsQ=1;
+window.setDtsYear=v=>{dtsYear=v;render();};
+window.setDtsQ=v=>{dtsQ=+v;render();};
+function socDL(name,txt){ const b=new Blob([txt],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click(); }
+window.appliquerTauxOfficiels=()=>{ if(!confirm('Appliquer les taux officiels ? CNSS 16% patronale / 2,5% salariale · CNAMGS 4,1% / 2% · plafond 1 500 000 FCFA.')) return;
+  S.paie.cnssPat=16; S.paie.cnssSal=2.5; S.paie.cnamgsPat=4.1; S.paie.cnamgsSal=2; S.paie.plafondCnss=1500000; persist(); render(); };
+function qMonths(q){ return [ (q-1)*3+1, (q-1)*3+2, (q-1)*3+3 ]; }
+function dtsRows(year,q){ const months=qMonths(q).map(m=>String(m).padStart(2,'0'));
+  const plaf=+S.paie.plafondCnss||1500000; const byEmp={};
+  (S.payslips||[]).forEach(p=>{ const py=(p.per||'').slice(0,4), pm=(p.per||'').slice(5,7); if(py!==String(year)||!months.includes(pm))return;
+    const k=p.empId||p.nom; byEmp[k]=byEmp[k]||{nom:p.nom,mat:p.mat||'',brut:0,ass:0,cnssS:0,cnssP:0,camS:0,camP:0};
+    const e=byEmp[k]; e.brut+=p.brut||0; e.ass+=Math.min(p.brut||0,plaf); e.cnssS+=p.cnss||0; e.cnssP+=p.cnssPat||0; e.camS+=p.cnamgs||0; e.camP+=p.cnamgsPat||0; });
+  return Object.values(byEmp); }
+window.exportDTS=()=>{ const rows=dtsRows(dtsYear,dtsQ); if(!rows.length){alert('Aucun bulletin sur ce trimestre.');return;}
+  let out='Matricule;Nom;Brut trimestre;Assiette plafonnee;CNSS salariale;CNSS patronale;CNAMGS salariale;CNAMGS patronale;Total cotisations\n';
+  rows.forEach(e=>{ const tot=e.cnssS+e.cnssP+e.camS+e.camP; out+=[e.mat,e.nom,Math.round(e.brut),Math.round(e.ass),Math.round(e.cnssS),Math.round(e.cnssP),Math.round(e.camS),Math.round(e.camP),Math.round(tot)].join(';')+'\n'; });
+  socDL('DTS_'+dtsYear+'_T'+dtsQ+'.csv',out); };
+views.social=()=>{
+  const R=S.paie; const rows=dtsRows(dtsYear,dtsQ);
+  const tot=rows.reduce((a,e)=>({brut:a.brut+e.brut,ass:a.ass+e.ass,cnssS:a.cnssS+e.cnssS,cnssP:a.cnssP+e.cnssP,camS:a.camS+e.camS,camP:a.camP+e.camP}),{brut:0,ass:0,cnssS:0,cnssP:0,camS:0,camP:0});
+  const totCot=tot.cnssS+tot.cnssP+tot.camS+tot.camP;
+  const years=[...new Set((S.payslips||[]).map(p=>(p.per||'').slice(0,4)).filter(Boolean))]; if(!years.includes(dtsYear))years.push(dtsYear); years.sort().reverse();
+  const yopt=years.map(y=>`<option value="${y}"${y===dtsYear?' selected':''}>${y}</option>`).join('');
+  const qopt=[1,2,3,4].map(q=>`<option value="${q}"${q===dtsQ?' selected':''}>T${q} (${qMonths(q).map(m=>['','Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][m]).join('-')})</option>`).join('');
+  return `<div class="head"><div><h1>🛡 Banque Social — CNSS · CNAMGS · DTS · DAS</h1><p>${esc(S.company.name)} — cotisations sociales et déclarations</p></div></div>
+  <div class="card"><h3>Taux de cotisation appliqués</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+      <div><div class="fl">${esc(R.org1nom||'CNSS')} patronale</div><div style="font-size:20px;font-weight:800">${R.cnssPat}%</div></div>
+      <div><div class="fl">${esc(R.org1nom||'CNSS')} salariale</div><div style="font-size:20px;font-weight:800">${R.cnssSal}%</div></div>
+      <div><div class="fl">${esc(R.org2nom||'CNAMGS')} patronale</div><div style="font-size:20px;font-weight:800">${R.cnamgsPat}%</div></div>
+      <div><div class="fl">${esc(R.org2nom||'CNAMGS')} salariale</div><div style="font-size:20px;font-weight:800">${R.cnamgsSal}%</div></div>
+      <div><div class="fl">Plafond mensuel</div><div style="font-size:20px;font-weight:800">${money(R.plafondCnss)}</div></div>
+    </div>
+    <p class="fl" style="margin-top:8px">Référence Gabon : CNSS 16% / 2,5% · CNAMGS 4,1% / 2% · plafond 1 500 000 FCFA/mois. Retard : 2%/mois ; défaut : 15%.</p>
+    <div style="margin-top:8px;padding:10px;background:#0E2A3D;border:1px solid var(--line);border-radius:10px">
+      <div class="fl" style="font-weight:700;color:#DCEDF2">Impôt sur salaire du pays : ${esc((S.paie&&S.paie.irppLib)||'IRPP')}</div>
+      <div class="fl" style="margin-top:3px">Le type d'impôt sur salaire (IRPP, ITS, IUTS, RTS, IPR…) suit le pays choisi dans les Paramètres. Le barème progressif se règle dans le module Paie ; les valeurs par défaut correspondent au Gabon, à ajuster selon le pays.</div>
+    </div>
+    <button class="btn ghost" style="margin-top:8px" onclick="appliquerTauxOfficiels()">Appliquer les taux officiels</button>
+    <span class="fl" style="margin-left:8px">Les taux sont modifiables dans Paie → Paramètres.</span>
+  </div>
+  <div class="card"><h3>DTS — Déclaration Trimestrielle des Salaires</h3>
+    <div class="row" style="align-items:flex-end">
+      <div style="max-width:120px"><label class="fl">Année</label><select class="in" onchange="setDtsYear(this.value)">${yopt}</select></div>
+      <div style="max-width:220px"><label class="fl">Trimestre</label><select class="in" onchange="setDtsQ(this.value)">${qopt}</select></div>
+      <div style="flex:0"><button class="btn ghost" onclick="exportDTS()">Export CSV (plateforme)</button></div>
+      <div style="flex:0"><button class="btn ghost" onclick="window.print()">Imprimer</button></div>
+    </div>
+    ${rows.length?`<table style="margin-top:12px"><thead><tr><th>Mat.</th><th>Nom</th><th class="r">Brut</th><th class="r">Assiette plaf.</th><th class="r">CNSS sal.</th><th class="r">CNSS pat.</th><th class="r">CNAMGS sal.</th><th class="r">CNAMGS pat.</th></tr></thead><tbody>
+      ${rows.map(e=>`<tr><td>${esc(e.mat)}</td><td>${esc(e.nom)}</td><td class="num r">${money(e.brut)}</td><td class="num r">${money(e.ass)}</td><td class="num r">${money(e.cnssS)}</td><td class="num r">${money(e.cnssP)}</td><td class="num r">${money(e.camS)}</td><td class="num r">${money(e.camP)}</td></tr>`).join('')}
+      <tr style="font-weight:700;background:rgba(255,255,255,.03)"><td colspan="2">TOTAUX</td><td class="num r">${money(tot.brut)}</td><td class="num r">${money(tot.ass)}</td><td class="num r">${money(tot.cnssS)}</td><td class="num r">${money(tot.cnssP)}</td><td class="num r">${money(tot.camS)}</td><td class="num r">${money(tot.camP)}</td></tr>
+      </tbody></table>
+      <div class="balbar" style="margin-top:12px">Total cotisations à verser (CNSS + CNAMGS, salariales + patronales) : <b style="color:var(--cr)">${money(totCot)} ${cur()}</b></div>
+      <p class="fl" style="margin-top:6px">Le fichier CSV s'ouvre dans Excel et correspond au format accepté par la plateforme CNSS (Excel/Txt). À déposer sur le portail de la CNSS et de la CNAMGS.</p>`
+      :`<p class="fl" style="margin-top:12px">Aucun bulletin de paie enregistré pour ce trimestre. Générez d'abord les bulletins dans <b>Banque Social → Paie</b> (module Paie), puis revenez ici.</p>`}
+  </div>
+  <div class="card"><h3>DAS — Déclaration Annuelle des Salaires</h3>
+    <p class="fl">La DAS récapitule, salarié par salarié, l'ensemble des rémunérations de l'année. Elle est disponible dans le module <b>Paie</b> (onglet DAS), avec export CSV et impression — alimentée par les mêmes bulletins.</p>
+    <button class="btn ghost" style="margin-top:6px" onclick="view='paye';render()">Ouvrir le module Paie</button>
+  </div>`;
+};
+
+/* ===== BRIQUE 6 — Documents internes & externes (GED) ===== */
+const DOC_CATS={int:['Procédure interne','Note de service','Contrat interne','Rapport','Justificatif comptable','PV / Décision','Autre'],
+                ext:['Facture fournisseur','Facture client','Relevé bancaire','Contrat externe','Attestation','Courrier administratif','Bon de commande','Autre']};
+function humanSize(n){ if(n<1024)return n+' o'; if(n<1048576)return (n/1024).toFixed(0)+' Ko'; return (n/1048576).toFixed(1)+' Mo'; }
+window.docAdd=(scope)=>{ if(isReadonly()){alert('Lecture seule.');return;}
+  const f=document.getElementById('docFile').files[0]; if(!f){alert('Choisissez un fichier.');return;}
+  if(f.size>3*1048576){alert('Fichier trop volumineux (max 3 Mo). Réduisez-le (ex : PDF compressé, image allégée).');return;}
+  const label=document.getElementById('docLabel').value.trim()||f.name;
+  const cat=document.getElementById('docCat').value, ref=document.getElementById('docRef').value.trim(), date=document.getElementById('docDate').value;
+  const r=new FileReader(); r.onload=e=>{ S.docs=S.docs||[];
+    S.docs.push({id:'d'+Date.now()+Math.random().toString(36).slice(2,6),scope,name:label,cat,ref,date,size:f.size,mime:f.type||'application/octet-stream',data:e.target.result,by:(currentUser&&currentUser.login)||'',t:new Date().toISOString()});
+    persist(); audit('AJOUT_DOCUMENT',scope+' : '+label); render(); };
+  r.readAsDataURL(f); };
+window.docOpen=(id)=>{ const d=(S.docs||[]).find(x=>x.id===id); if(!d)return; const w=window.open(); if(w){ if((d.mime||'').indexOf('image')===0){ w.document.write('<img src="'+d.data+'" style="max-width:100%">'); } else { w.document.write('<iframe src="'+d.data+'" style="width:100%;height:100vh;border:0"></iframe>'); } w.document.title=d.name; } };
+window.docDownload=(id)=>{ const d=(S.docs||[]).find(x=>x.id===id); if(!d)return; const a=document.createElement('a'); a.href=d.data; a.download=d.name+(d.name.indexOf('.')<0?guessExt(d.mime):''); a.click(); };
+function guessExt(m){ if(!m)return''; if(m.indexOf('pdf')>=0)return'.pdf'; if(m.indexOf('png')>=0)return'.png'; if(m.indexOf('jpeg')>=0||m.indexOf('jpg')>=0)return'.jpg'; if(m.indexOf('word')>=0)return'.docx'; if(m.indexOf('excel')>=0||m.indexOf('sheet')>=0)return'.xlsx'; return''; }
+window.docDel=(id)=>{ if(isReadonly())return; if(!confirm('Supprimer ce document ?'))return; const d=(S.docs||[]).find(x=>x.id===id); S.docs=(S.docs||[]).filter(x=>x.id!==id); persist(); audit('SUPPRESSION_DOCUMENT',(d?d.name:id)); render(); };
+let docSearch={int:'',ext:''};
+window.docFilter=(scope,v)=>{ docSearch[scope]=v; render(); setTimeout(()=>{const el=document.getElementById('docQ_'+scope); if(el){el.focus();el.value=v;}},0); };
+function docsView(scope){
+  S.docs=S.docs||[]; const q=(docSearch[scope]||'').toLowerCase();
+  const list=S.docs.filter(d=>d.scope===scope).filter(d=>!q||[d.name,d.cat,d.ref].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.t||'').localeCompare(a.t||''));
+  const totalSize=S.docs.filter(d=>d.scope===scope).reduce((a,d)=>a+(d.size||0),0);
+  const catOpt=DOC_CATS[scope].map(c=>`<option>${c}</option>`).join('');
+  const title=scope==='int'?'📁 Documents internes':'📂 Documents externes';
+  const hint=scope==='int'?'Procédures, notes de service, contrats internes, justificatifs, PV de décisions…':'Factures fournisseurs & clients, relevés bancaires, contrats, attestations, courriers…';
+  return `<div class="head"><div><h1>${title}</h1><p>${hint}</p></div></div>
+    <div class="card"><h3>Ajouter un document</h3>
+      <div class="row" style="align-items:flex-end">
+        <div><label class="fl">Fichier (PDF, image… max 3 Mo)</label><input class="in" type="file" id="docFile" accept=".pdf,image/*,.doc,.docx,.xls,.xlsx"></div>
+        <div><label class="fl">Libellé</label><input class="in" id="docLabel" placeholder="Ex : Facture SEEG janvier"></div>
+        <div style="max-width:200px"><label class="fl">Catégorie</label><select class="in" id="docCat">${catOpt}</select></div>
+        <div style="max-width:160px"><label class="fl">Réf. / pièce liée</label><input class="in" id="docRef" placeholder="N° écriture, facture…"></div>
+        <div style="max-width:150px"><label class="fl">Date</label><input class="in" id="docDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div style="flex:0"><button class="btn emer" onclick="docAdd('${scope}')">Archiver</button></div>
+      </div>
+      <p class="fl" style="margin-top:6px">Les documents sont stockés de façon chiffrée dans l'application.</p>
+    </div>
+    <div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Documents archivés (${list.length})</h3>
+      <input class="in" id="docQ_${scope}" style="max-width:240px" placeholder="Rechercher…" value="${esc(docSearch[scope]||'')}" oninput="docFilter('${scope}',this.value)"></div>
+      ${list.length?`<table style="margin-top:10px"><thead><tr><th>Document</th><th>Catégorie</th><th>Réf.</th><th>Date</th><th class="r">Taille</th><th></th></tr></thead><tbody>
+        ${list.map(d=>`<tr><td><b>${esc(d.name)}</b><br><span class="fl">${esc(d.mime||'')}</span></td><td>${esc(d.cat)}</td><td>${esc(d.ref||'—')}</td><td>${d.date?new Date(d.date).toLocaleDateString('fr-FR'):'—'}</td><td class="num r">${humanSize(d.size||0)}</td>
+          <td class="r" style="white-space:nowrap"><button class="btn ghost" style="padding:4px 8px" onclick="docOpen('${d.id}')">Ouvrir</button> <button class="btn ghost" style="padding:4px 8px" onclick="docDownload('${d.id}')">⬇</button> <button class="del" onclick="docDel('${d.id}')">×</button></td></tr>`).join('')}
+      </tbody></table><p class="fl" style="margin-top:8px">Espace utilisé par cette banque : ${humanSize(totalSize)}.</p>`
+      :'<div class="empty" style="margin-top:10px">Aucun document archivé pour le moment.</div>'}
+    </div>`;
+}
+views.docint=()=>docsView('int');
+views.docext=()=>docsView('ext');
+
+/* ===== BRIQUE 7 — Clôture semestrielle ===== */
+function periodLocked(date){ return !!(S.lockedUntil && date && String(date)<=S.lockedUntil); }
+let clSem=(new Date().getMonth()<6)?1:2;
+window.setClSem=v=>{ clSem=+v; render(); };
+function semBornes(ex,sem){ return sem===1?{d:ex+'-01-01',f:ex+'-06-30',lib:'1er semestre (janvier–juin)'}:{d:ex+'-07-01',f:ex+'-12-31',lib:'2e semestre (juillet–décembre)'}; }
+function coherenceChecks(ex,sem){
+  const b=semBornes(ex,sem); const checks=[];
+  // 1. chaque écriture équilibrée
+  let desq=0; S.entries.forEach(e=>{ const d=e.lines.reduce((a,l)=>a+(+l.debit||0),0),c=e.lines.reduce((a,l)=>a+(+l.credit||0),0); if(Math.round(d-c)!==0)desq++; });
+  checks.push({ok:desq===0, lib:'Toutes les écritures sont équilibrées', det:desq?desq+' écriture(s) déséquilibrée(s)':'OK'});
+  // 2. balance générale équilibrée
+  let td=0,tc=0; S.entries.forEach(e=>e.lines.forEach(l=>{ td+=+l.debit||0; tc+=+l.credit||0; }));
+  checks.push({ok:Math.round(td-tc)===0, lib:'Balance générale équilibrée (débit = crédit)', det:Math.round(td-tc)===0?'OK':('écart de '+money(td-tc)+' '+cur())});
+  // 3. comptes renseignés
+  let sansCpt=0; S.entries.forEach(e=>e.lines.forEach(l=>{ if(!l.acc)sansCpt++; }));
+  checks.push({ok:sansCpt===0, lib:'Toutes les lignes ont un compte', det:sansCpt?sansCpt+' ligne(s) sans compte':'OK'});
+  // 4. écritures présentes sur le semestre
+  const nb=S.entries.filter(e=>e.date>=b.d&&e.date<=b.f).length;
+  checks.push({ok:nb>0, lib:'Des écritures existent sur le '+b.lib, det:nb+' écriture(s)'});
+  // 5. période pas déjà clôturée
+  const deja=(S.clotures||[]).some(c=>c.ex===ex&&c.sem===sem);
+  checks.push({ok:!deja, lib:'Ce semestre n\'est pas déjà clôturé', det:deja?'déjà clôturé':'OK'});
+  return {checks, bornes:b, ok:checks.every(c=>c.ok)};
+}
+function semResultat(ex,sem){ const b=semBornes(ex,sem); let prod=0,charg=0;
+  S.entries.forEach(e=>{ if(e.date<b.d||e.date>b.f)return; e.lines.forEach(l=>{ const cl=(l.acc||'')[0]; if(cl==='7')prod+=(+l.credit||0)-(+l.debit||0); if(cl==='6')charg+=(+l.debit||0)-(+l.credit||0); }); });
+  return {prod,charg,res:prod-charg}; }
+window.cloturerSemestre=()=>{ if(isReadonly()){alert('Lecture seule.');return;}
+  const ex=S.company.exercice; const r=coherenceChecks(ex,clSem); if(!r.ok){ alert('Des contrôles ne sont pas satisfaits. Corrigez les anomalies avant de clôturer.'); return; }
+  const sr=semResultat(ex,clSem);
+  if(!confirm('Clôturer définitivement le '+r.bornes.lib+' '+ex+' ?\n\nLes écritures jusqu\'au '+new Date(r.bornes.f).toLocaleDateString('fr-FR')+' seront VERROUILLÉES (plus aucune modification possible sur cette période).\nRésultat du semestre : '+money(sr.res)+' FCFA.\n\nSauvegardez avant si nécessaire.')) return;
+  S.clotures=S.clotures||[]; S.clotures.push({ex,sem:clSem,lib:r.bornes.lib,at:new Date().toISOString(),by:(currentUser&&currentUser.login)||'',resultat:sr.res,lockedUntil:r.bornes.f});
+  if(!S.lockedUntil||r.bornes.f>S.lockedUntil) S.lockedUntil=r.bornes.f;
+  persist(); audit('CLOTURE_SEMESTRIELLE',r.bornes.lib+' '+ex+' — résultat '+money(sr.res)); render();
+  alert('Semestre clôturé et verrouillé jusqu\'au '+new Date(r.bornes.f).toLocaleDateString('fr-FR')+'.');
+};
+window.deverrouiller=()=>{ if((currentUser&&currentUser.role)!=='admin'){alert('Réservé au Directeur Financier.');return;}
+  if(!confirm('Lever le verrouillage de période ? À utiliser uniquement pour corriger une erreur exceptionnelle. L\'action sera tracée.'))return;
+  audit('DEVERROUILLAGE_PERIODE','ancien verrou : '+S.lockedUntil); S.lockedUntil=''; persist(); render(); };
+views.cloture=()=>{
+  const ex=S.company.exercice; const r=coherenceChecks(ex,clSem); const sr=semResultat(ex,clSem);
+  const semOpt=[1,2].map(sm=>`<option value="${sm}"${sm===clSem?' selected':''}>${semBornes(ex,sm).lib}</option>`).join('');
+  const hist=(S.clotures||[]).slice().reverse();
+  return `<div class="head"><div><h1>🔒 Banque Clôture — clôture semestrielle</h1><p>${esc(S.company.name)} — exercice ${ex}</p></div><div><button class="btn ghost" onclick="window.print()">Imprimer</button></div></div>
+  ${S.lockedUntil?`<div class="balbar" style="margin-bottom:14px">🔒 Période verrouillée jusqu'au <b>${new Date(S.lockedUntil).toLocaleDateString('fr-FR')}</b> — aucune écriture ne peut y être saisie. ${(currentUser&&currentUser.role==='admin')?'<button class="btn ghost" style="margin-left:10px;padding:4px 8px" onclick="deverrouiller()">Lever le verrou (exceptionnel)</button>':''}</div>`:''}
+  <div class="card"><div class="row" style="align-items:flex-end"><div style="max-width:320px"><label class="fl">Semestre à clôturer</label><select class="in" onchange="setClSem(this.value)">${semOpt}</select></div></div>
+    <h3 style="margin-top:14px">Contrôles de cohérence</h3>
+    <table><tbody>${r.checks.map(c=>`<tr><td style="width:34px">${c.ok?'<span style="color:var(--cr)">✔</span>':'<span style="color:var(--dr)">✖</span>'}</td><td>${c.lib}</td><td class="r fl">${c.det}</td></tr>`).join('')}</tbody></table>
+    <div class="row" style="margin-top:14px;gap:20px">
+      <div><div class="fl">Produits du semestre</div><div style="font-size:18px;font-weight:800;color:var(--cr)">${money(sr.prod)}</div></div>
+      <div><div class="fl">Charges du semestre</div><div style="font-size:18px;font-weight:800;color:var(--dr)">${money(sr.charg)}</div></div>
+      <div><div class="fl">Résultat du semestre</div><div style="font-size:18px;font-weight:800;color:${sr.res>=0?'var(--cr)':'var(--dr)'}">${money(sr.res)}</div></div>
+    </div>
+    <button class="btn emer" style="margin-top:14px" onclick="cloturerSemestre()" ${r.ok?'':'disabled style="opacity:.5;margin-top:14px"'}>Clôturer et verrouiller le semestre</button>
+    ${r.ok?'':'<p class="fl" style="margin-top:8px">Corrigez les anomalies (✖) ci-dessus pour activer la clôture.</p>'}
+    ${clSem===2?'<p class="fl" style="margin-top:8px">💡 Après la clôture du 2e semestre, vous pouvez procéder à la <b>clôture annuelle</b> (report à nouveau) depuis « Bilan &amp; Résultat ».</p>':''}
+  </div>
+  <div class="card"><h3>Historique des clôtures</h3>
+    ${hist.length?`<table><thead><tr><th>Exercice</th><th>Semestre</th><th>Clôturé le</th><th>Par</th><th class="r">Résultat</th></tr></thead><tbody>
+      ${hist.map(c=>`<tr><td>${c.ex}</td><td>${esc(c.lib)}</td><td>${new Date(c.at).toLocaleString('fr-FR')}</td><td>${esc(c.by)}</td><td class="num r">${money(c.resultat)}</td></tr>`).join('')}
+    </tbody></table>`:'<div class="empty">Aucune clôture semestrielle pour le moment.</div>'}
+  </div>`;
+};
+
+/* ===== BRIQUE 8 — Assistant IA (compréhension du langage naturel, hors-ligne) ===== */
+let iaLog=[];
+const IA_MOIS={'janvier':1,'fevrier':2,'mars':3,'avril':4,'mai':5,'juin':6,'juillet':7,'aout':8,'septembre':9,'octobre':10,'novembre':11,'decembre':12};
+function iaNorm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function iaMonthOf(q){ for(const m in IA_MOIS){ if(q.includes(m)) return IA_MOIS[m]; } const mm=q.match(/\b(0?[1-9]|1[0-2])\/(20\d{2})\b/); if(mm)return +mm[1]; return null; }
+function iaInterpret(raw){
+  const q=iaNorm(raw); const ex=S.company.exercice; const credit=p=>-prefixBalance(p).solde, debit=p=>prefixBalance(p).solde;
+  const openBtn=(v,lbl,extra)=>`<button class="btn emer" style="margin-top:8px" onclick="${extra||''}view='${v}';render()">${lbl}</button>`;
+  // SALAIRES / PAIE
+  if(/(salaire|salaires|paie|bulletin|masse salariale)/.test(q)){
+    const mo=iaMonthOf(q); const per=mo?ex+'-'+String(mo).padStart(2,'0'):null;
+    const ps=(S.payslips||[]).filter(p=>per?p.per===per:(p.per||'').slice(0,4)===String(ex));
+    if(!ps.length) return {title:'État des salaires',html:`Aucun bulletin trouvé ${per?('pour '+raw.match(/[a-zA-Zéû]+$/)):''} sur l'exercice ${ex}. Générez les bulletins dans le module Paie.`,view:'paye',btn:'Ouvrir la Paie'};
+    const brut=ps.reduce((a,p)=>a+(p.brut||0),0), net=ps.reduce((a,p)=>a+(p.net||0),0);
+    const cnss=ps.reduce((a,p)=>a+(p.cnss||0)+(p.cnssPat||0),0), cam=ps.reduce((a,p)=>a+(p.cnamgs||0)+(p.cnamgsPat||0),0);
+    const libP=mo?('de '+Object.keys(IA_MOIS).find(k=>IA_MOIS[k]===mo)+' '+ex):('de l\'exercice '+ex);
+    return {title:'État des salaires '+libP, html:`Voici la synthèse des salaires ${libP} (${ps.length} bulletin(s)) :<table style="margin-top:8px"><tbody>
+      <tr><td>Total brut</td><td class="num r"><b>${money(brut)}</b></td></tr>
+      <tr><td>Total net à payer</td><td class="num r"><b>${money(net)}</b></td></tr>
+      <tr><td>Cotisations CNSS (sal.+pat.)</td><td class="num r">${money(cnss)}</td></tr>
+      <tr><td>Cotisations CNAMGS (sal.+pat.)</td><td class="num r">${money(cam)}</td></tr></tbody></table>`,
+      view:'social', btn:'Ouvrir la Banque Social (DTS)'};
+  }
+  // BILAN
+  if(/bilan/.test(q)){ return {title:'Bilan',html:`J'ouvre le <b>bilan</b> (actif / passif) de la liasse fiscale OHADA pour l'exercice ${ex}.`,view:'liasse',btn:'Ouvrir le bilan',pre:"liTab='bilan';"}; }
+  // COMPTE DE RESULTAT
+  if(/(compte de resultat|resultat net|resultat de l|le resultat|resultat comptable)/.test(q)){ const r=resultat();
+    return {title:'Compte de résultat',html:`Le <b>résultat net</b> de l'exercice ${ex} est de <b>${money(r)} ${cur()}</b>.`,view:'liasse',btn:'Ouvrir le compte de résultat',pre:"liTab='resultat';"}; }
+  // TVA
+  if(/tva/.test(q)){ const col=credit('443'),ded=debit('445'),due=col-ded;
+    return {title:'TVA',html:`Déclaration de TVA (exercice ${ex}) :<table style="margin-top:8px"><tbody><tr><td>TVA collectée</td><td class="num r">${money(col)}</td></tr><tr><td>TVA déductible</td><td class="num r">${money(ded)}</td></tr><tr><td><b>${due>=0?'TVA à décaisser':'Crédit de TVA'}</b></td><td class="num r"><b>${money(Math.abs(due))}</b></td></tr></tbody></table>`,view:'liasse',btn:'Ouvrir les déclarations',pre:"liTab='decl';"}; }
+  // IS / IMPOT SOCIETE
+  if(/(impot sur les societes|impot societe|\bis\b|impot sur le resultat)/.test(q)){ const r=resultat(); const rate=+((S.settings&&S.settings.is)||30); const ca=credit('70'); const imf=Math.round(ca*0.01); const is=r>0?Math.max(Math.round(r*rate/100),imf):imf;
+    return {title:'Impôt sur les sociétés',html:`Estimation de l'<b>IS</b> (exercice ${ex}) : résultat ${money(r)} × ${rate}% = <b>${money(is)} ${cur()}</b> (minimum forfaitaire 1% du CA = ${money(imf)}).`,view:'liasse',btn:'Ouvrir les déclarations',pre:"liTab='decl';"}; }
+  // TRESORERIE
+  if(/(tresorerie|banque|caisse|liquidites)/.test(q)){ const t=debit('52')+debit('53')+debit('54')+debit('57');
+    return {title:'Trésorerie',html:`La <b>trésorerie</b> (banques + caisse) s'élève à <b>${money(t)} ${cur()}</b>.`,view:'graph',btn:'Voir les graphiques'}; }
+  // GRAND LIVRE / BALANCE / GRAPHIQUES / CLOTURE / DOCUMENTS / LIASSE
+  if(/grand livre/.test(q)) return {title:'Grand livre',html:'J\'ouvre le <b>grand livre</b>.',view:'gl',btn:'Ouvrir le grand livre'};
+  if(/balance/.test(q)) return {title:'Balance',html:'J\'ouvre la <b>balance générale</b>.',view:'bal',btn:'Ouvrir la balance'};
+  if(/(graphique|graphiques|analyse|statistique|tableau de bord|kpi)/.test(q)) return {title:'Graphiques',html:'J\'ouvre les <b>graphiques de gestion</b>.',view:'graph',btn:'Ouvrir les graphiques'};
+  if(/(cloture|cloturer|verrouiller|semestre)/.test(q)) return {title:'Clôture',html:'J\'ouvre la <b>clôture semestrielle</b>.',view:'cloture',btn:'Ouvrir la clôture'};
+  if(/(liasse|etats financiers|notes annexes|flux de tresorerie)/.test(q)) return {title:'Liasse fiscale',html:'J\'ouvre la <b>liasse fiscale OHADA</b>.',view:'liasse',btn:'Ouvrir la liasse'};
+  if(/(document|piece|facture scannee|justificatif|contrat|releve)/.test(q)) return {title:'Documents',html:'J\'ouvre les <b>documents externes</b> (factures, relevés, contrats…).',view:'docext',btn:'Ouvrir les documents'};
+  if(/(dts|cnss|cnamgs|declaration sociale|cotisation)/.test(q)) return {title:'Banque Social',html:'J\'ouvre la <b>Banque Social</b> (CNSS, CNAMGS, DTS, DAS).',view:'social',btn:'Ouvrir la Banque Social'};
+  if(/(ecriture|saisie|journal|comptabiliser)/.test(q)) return {title:'Écritures',html:'J\'ouvre la <b>saisie des écritures</b>.',view:'ecr',btn:'Ouvrir les écritures'};
+  // COMPARAISON entre deux mois : "compare janvier et février" (CA/charges/résultat)
+  if(/(compare|comparer|comparaison|versus|\bvs\b|évolution|evolution)/.test(q)){
+    const found=[]; for(const m in IA_MOIS){ if(q.includes(m)) found.push(IA_MOIS[m]); }
+    if(found.length>=2){ const calc=(mo)=>{ const mm=String(mo).padStart(2,'0'); let ca=0,ch=0; S.entries.forEach(e=>{ if((e.date||'').slice(0,7)!==ex+'-'+mm)return; e.lines.forEach(l=>{const c=(l.acc||'')[0]; if(c==='7')ca+=(+l.credit||0)-(+l.debit||0); if(c==='6')ch+=(+l.debit||0)-(+l.credit||0);});}); return {ca,ch,res:ca-ch}; };
+      const nom=n=>Object.keys(IA_MOIS).find(k=>IA_MOIS[k]===n); const a1=calc(found[0]), a2=calc(found[1]);
+      const dpct=(x,y)=>y?Math.round((x-y)/Math.abs(y)*1000)/10:0;
+      return {title:'Comparaison '+nom(found[0])+' / '+nom(found[1]),html:`Comparaison ${nom(found[0])} vs ${nom(found[1])} ${ex} :<table style="margin-top:8px"><thead><tr><th></th><th class="r">${nom(found[0])}</th><th class="r">${nom(found[1])}</th><th class="r">Évol.</th></tr></thead><tbody>
+        <tr><td>Chiffre d'affaires</td><td class="num r">${money(a1.ca)}</td><td class="num r">${money(a2.ca)}</td><td class="num r" style="color:${a2.ca>=a1.ca?'var(--cr)':'var(--dr)'}">${dpct(a2.ca,a1.ca)}%</td></tr>
+        <tr><td>Charges</td><td class="num r">${money(a1.ch)}</td><td class="num r">${money(a2.ch)}</td><td class="num r">${dpct(a2.ch,a1.ch)}%</td></tr>
+        <tr><td><b>Résultat</b></td><td class="num r"><b>${money(a1.res)}</b></td><td class="num r"><b>${money(a2.res)}</b></td><td class="num r" style="color:${a2.res>=a1.res?'var(--cr)':'var(--dr)'}"><b>${dpct(a2.res,a1.res)}%</b></td></tr>
+      </tbody></table>`,view:'graph',btn:'Voir les graphiques'}; }
+  }
+  // IMPRESSION / EXPORT PDF
+  if(/(imprime|imprimer|pdf|exporte|exporter|edite|éditer)/.test(q)){
+    let v='liasse', pre="liTab='bilan';"; if(/resultat|résultat/.test(q))pre="liTab='resultat';"; if(/tva|declaration|déclaration/.test(q))pre="liTab='decl';";
+    return {title:'Impression',html:'J\'ouvre l\'état demandé. Utilisez ensuite le bouton <b>Imprimer</b> en haut à droite (choisissez « Enregistrer en PDF » dans la fenêtre d\'impression).',view:v,btn:'Ouvrir et imprimer',pre:pre}; }
+  return {title:'Assistant',html:`Je n'ai pas reconnu cette demande. Essayez par exemple : <i>« le bilan »</i>, <i>« état des salaires de juin »</i>, <i>« la TVA du mois »</i>, <i>« compare janvier et février »</i>, <i>« imprimer le bilan »</i>, <i>« graphiques »</i>.`,view:null};
+}
+window.iaAsk=(preset)=>{ const inp=document.getElementById('iaInput'); const raw=preset||(inp?inp.value.trim():''); if(!raw)return;
+  const a=iaInterpret(raw); iaLog.push({q:raw,a}); if(inp)inp.value=''; render();
+  setTimeout(()=>{ const z=document.getElementById('iaScroll'); if(z)z.scrollTop=z.scrollHeight; },30); };
+window.iaChip=(t)=>iaAsk(t);
+window.iaDo=(v,pre)=>{ if(pre){ try{eval(pre);}catch(e){} } if(v){ view=v; } render(); };
+views.ia=()=>{
+  const chips=['Le bilan','Compte de résultat','La TVA du mois','État des salaires de juin','Compare janvier et février','Imprimer le bilan','Graphiques de gestion','Clôture semestrielle'];
+  return `<div class="head"><div><h1>🤖 Assistant IA</h1><p>Demandez un état en langage courant — l'assistant le calcule et l'ouvre pour vous. Fonctionne hors-ligne.</p></div></div>
+  <div class="card">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">${chips.map(c=>`<button class="btn ghost" style="padding:6px 10px" onclick="iaChip('${c.replace(/'/g,"\\'")}')">${c}</button>`).join('')}</div>
+    <div id="iaScroll" style="max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:4px">
+      ${iaLog.length?iaLog.map(m=>`
+        <div style="align-self:flex-end;max-width:80%;background:var(--emer,#0E7C5A);color:#fff;padding:9px 13px;border-radius:14px 14px 3px 14px">${esc(m.q)}</div>
+        <div style="align-self:flex-start;max-width:88%;background:#0E2A3D;border:1px solid var(--line);padding:12px 14px;border-radius:14px 14px 14px 3px">
+          <div style="font-weight:700;margin-bottom:4px">🤖 ${esc(m.a.title)}</div>
+          <div style="line-height:1.55">${m.a.html}</div>
+          ${m.a.view?`<button class="btn emer" style="margin-top:10px" onclick="iaDo('${m.a.view}',${m.a.pre?JSON.stringify(m.a.pre):'null'})">${esc(m.a.btn||'Ouvrir')}</button>`:''}
+        </div>`).join('')
+      :`<div class="empty">Posez votre première question. Exemples : « le bilan », « état des salaires de juin », « la TVA du mois »…</div>`}
+    </div>
+    <div class="row" style="margin-top:12px;gap:8px">
+      <input class="in" id="iaInput" placeholder="Écrivez votre demande…" style="flex:1" onkeydown="if(event.key==='Enter')iaAsk()">
+      <button class="btn emer" style="flex:0" onclick="iaAsk()">Envoyer</button>
+    </div>
+    <p class="fl" style="margin-top:8px">Développé par Pro-Technologie · Assistant intégré, sans envoi de données sur Internet.</p>
+  </div>`;
+};
+
+/* ===== Amélioration — Tableau de bord multi-sociétés ===== */
+function companyKPIs(data){ const e=(data&&data.entries)||[]; let ca=0,ch=0,tr=0;
+  e.forEach(x=>x.lines.forEach(l=>{ const c=(l.acc||'')[0]; if(c==='7')ca+=(+l.credit||0)-(+l.debit||0); if(c==='6')ch+=(+l.debit||0)-(+l.credit||0); if(c==='5')tr+=(+l.debit||0)-(+l.credit||0); }));
+  return {ca,ch,res:ca-ch,treso:tr, devise:(data&&data.company&&data.company.devise)||'FCFA', pays:(data&&data.company&&data.company.pays)||'—'}; }
+views.multi=()=>{
+  const ids=Object.keys(APP.companies); const rows=ids.map(id=>({id,name:APP.companies[id].name||'—',k:companyKPIs(APP.companies[id].data)}));
+  // totaux par devise
+  const parDev={}; rows.forEach(r=>{ const d=r.k.devise; parDev[d]=parDev[d]||{ca:0,res:0,treso:0,n:0}; parDev[d].ca+=r.k.ca; parDev[d].res+=r.k.res; parDev[d].treso+=r.k.treso; parDev[d].n++; });
+  return `<div class="head"><div><h1>🏢 Mes sociétés</h1><p>Vue consolidée de toutes vos entreprises — ${ids.length} société(s)</p></div><div><button class="btn emer" onclick="newCompany()">+ Nouvelle société</button></div></div>
+  <div class="card"><table><thead><tr><th>Société</th><th>Pays</th><th class="r">Chiffre d'affaires</th><th class="r">Résultat</th><th class="r">Trésorerie</th><th></th></tr></thead><tbody>
+    ${rows.map(r=>`<tr${r.id===APP.active?' style="background:rgba(63,216,236,.06)"':''}><td><b>${esc(r.name)}</b>${r.id===APP.active?' <span class="badge">active</span>':''}</td><td>${esc(r.k.pays)}</td>
+      <td class="num r">${money(r.k.ca)} ${esc(r.k.devise)}</td>
+      <td class="num r" style="color:${r.k.res>=0?'var(--cr)':'var(--dr)'}">${money(r.k.res)} ${esc(r.k.devise)}</td>
+      <td class="num r">${money(r.k.treso)} ${esc(r.k.devise)}</td>
+      <td class="r">${r.id===APP.active?'<span class="fl">—</span>':`<button class="btn ghost" style="padding:4px 10px" onclick="switchCompany('${r.id}')">Ouvrir</button>`}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="card"><h3>Totaux consolidés par devise</h3>
+    <table><thead><tr><th>Devise</th><th class="r">Sociétés</th><th class="r">CA cumulé</th><th class="r">Résultat cumulé</th><th class="r">Trésorerie cumulée</th></tr></thead><tbody>
+    ${Object.keys(parDev).map(d=>`<tr><td><b>${esc(d)}</b></td><td class="num r">${parDev[d].n}</td><td class="num r">${money(parDev[d].ca)} ${esc(d)}</td><td class="num r" style="color:${parDev[d].res>=0?'var(--cr)':'var(--dr)'}">${money(parDev[d].res)} ${esc(d)}</td><td class="num r">${money(parDev[d].treso)} ${esc(d)}</td></tr>`).join('')}
+    </tbody></table>
+    <p class="fl" style="margin-top:8px">Les totaux sont regroupés par devise (les montants de devises différentes ne sont pas additionnés entre eux).</p>
+  </div>`;
+};
+
+const BANK_SOON={ia:''};
+Object.keys(BANK_SOON).forEach(id=>{ if(!views[id]) views[id]=()=>`<div class="card"><h3>Module en préparation</h3><p class="fl" style="line-height:1.6">${BANK_SOON[id]}</p><p class="fl" style="margin-top:8px;color:var(--mut)">Ce module fait partie de Pro-Compta V3 « Entreprise » et sera activé dans une prochaine étape.</p></div>`; });
+function render(){
+  const hasAdmin = APP.users.some(u=>u.role==='admin');
+  if(!hasAdmin){ showSetup(); applyLang(); return; }         // 1re ouverture : créer le Directeur Financier
+  if(!currentUser){ showLogin(); applyLang(); return; }       // ensuite : connexion toujours obligatoire
   if(!canView(view)) view = (currentUser&&currentUser.role==='paie')?'paye':'dash';
-  $('#view').innerHTML=(views[view]||views.dash)(); bindView(); updateChip(); renderSocBar(); applyRolePerms(); checkLock(); applyLang(); }
+  $('#view').innerHTML=(views[view]||views.dash)(); buildNav(); bindView(); updateChip(); renderSocBar(); applyRolePerms(); checkLock(); applyLang(); }
 function renderSocBar(){ const el=$('#socBar'); if(!el)return; const ids=Object.keys(APP.companies);
   el.innerHTML=`<label class="fl" style="margin-bottom:4px">Société</label>
     <select class="in" style="padding:6px 8px;font-size:12.5px" onchange="switchCompany(this.value)">${ids.map(id=>`<option value="${id}"${id===APP.active?' selected':''}>${esc(APP.companies[id].name)}</option>`).join('')}</select>
@@ -1660,7 +2357,9 @@ function saveEntry(){
   if(ls.length<2){ alert('Il faut au moins deux lignes mouvementées.'); return; }
   const d=ls.reduce((a,l)=>a+(+l.debit||0),0), c=ls.reduce((a,l)=>a+(+l.credit||0),0);
   if(Math.round(d-c)!==0){ alert('Écriture déséquilibrée : total débit ≠ total crédit.'); return; }
-  S.entries.push({id:uid(), date:$('#eDate').value||todayISO(), journal:$('#eJournal').value, ref:$('#eRef').value,
+  const _dt=$('#eDate').value||todayISO();
+  if(periodLocked(_dt)){ alert('Période clôturée et verrouillée (jusqu\'au '+new Date(S.lockedUntil).toLocaleDateString('fr-FR')+'). Impossible d\'enregistrer une écriture à cette date.'); return; }
+  S.entries.push({id:uid(), date:_dt, journal:$('#eJournal').value, ref:$('#eRef').value,
     lines:ls.map(l=>({acc:l.acc,label:l.label,debit:+l.debit||0,credit:+l.credit||0,ana:l.ana||''}))});
   draft=[]; persist(); alert('Écriture enregistrée.'); render();
 }
@@ -1690,7 +2389,7 @@ function updateBackupNote(){ const el=$('#backupNote'); if(!el)return; const lb=
   const days=Math.floor((Date.now()-new Date(lb).getTime())/86400000);
   el.innerHTML='Dernière sauvegarde : '+lb.slice(0,10)+(days>=7?' <span style="color:var(--gold)">— il y a '+days+' jours, une nouvelle sauvegarde est conseillée.</span>':' ✓');
 }
-function markBackup(){ APP.meta=APP.meta||{}; APP.meta.lastBackup=new Date().toISOString(); try{ localStorage.setItem(APPKEY,JSON.stringify(APP)); }catch(e){} }
+function markBackup(){ APP.meta=APP.meta||{}; APP.meta.lastBackup=new Date().toISOString(); saveAPP(); }
 async function deriveKey(pwd, salt){ const enc=new TextEncoder();
   const base=await crypto.subtle.importKey('raw', enc.encode(pwd), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:120000, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']); }
@@ -1736,27 +2435,44 @@ $('#lockActivate').onclick=()=>{ const k=$('#lockKey').value.trim(); const p=par
   S.license.key=k; persist(); $('#lockErr').textContent=''; render(); };
 
 /* Sécurité / connexion */
+function showSetup(){ ['#loginOv','#lock','#modeSel'].forEach(id=>{const e=$(id);if(e)e.classList.remove('show');}); $('#setupOv').classList.add('show'); }
+$('#suBtn').onclick=()=>{
+  const nom=$('#suName').value.trim(), login=$('#suLoginInit').value.trim();
+  const p1=$('#suPwd1').value, p2=$('#suPwd2').value;
+  if(!login){ $('#suErr').textContent='Indiquez un identifiant.'; return; }
+  if(p1.length<4){ $('#suErr').textContent='Le mot de passe doit contenir au moins 4 caractères.'; return; }
+  if(p1!==p2){ $('#suErr').textContent='Les deux mots de passe ne correspondent pas.'; return; }
+  APP.users=APP.users||[];
+  APP.users.push({login, pwd:hashPwd(p1), role:'admin', nom});
+  saveAPP();
+  currentUser={login, role:'admin', nom}; audit('CREATION_DIRECTEUR_FINANCIER',login);
+  $('#setupOv').classList.remove('show'); view='dash'; render();
+  alert('Compte Directeur Financier créé. Vous êtes connecté.');
+};
+$('#suPwd2').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#suBtn').click(); });
 function showLogin(){ $('#loginOv').classList.add('show'); }
 $('#logBtn').onclick=()=>{ const u=$('#logUser').value.trim(), p=$('#logPwd').value;
   const usr=APP.users.find(x=>x.login.toLowerCase()===u.toLowerCase());
-  if(!usr || usr.pwd!==hashPwd(p)){ $('#logErr').textContent='Identifiant ou mot de passe incorrect.'; return; }
-  currentUser={login:usr.login, role:usr.role}; $('#logErr').textContent=''; $('#loginOv').classList.remove('show');
+  if(!usr || usr.pwd!==hashPwd(p)){ audit('CONNEXION_ECHEC',u); $('#logErr').textContent='Identifiant ou mot de passe incorrect.'; return; }
+  currentUser={login:usr.login, role:usr.role, nom:usr.nom}; audit('CONNEXION',usr.login); $('#logErr').textContent=''; $('#loginOv').classList.remove('show');
   view=(usr.role==='paie')?'paye':'dash'; render(); };
 $('#logPwd').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#logBtn').click(); });
-window.logout=()=>{ currentUser=null; view='dash'; render(); };
+window.logout=()=>{ audit('DECONNEXION',(currentUser&&currentUser.login)||''); currentUser=null; view='dash'; render(); };
 window.addUser=()=>{ const login=$('#suLogin').value.trim(), pwd=$('#suPwd').value, role=$('#suRole').value;
   if(!login||!pwd){ alert('Identifiant et mot de passe requis.'); return; }
   if(APP.users.some(u=>u.login.toLowerCase()===login.toLowerCase())){ alert('Cet identifiant existe déjà.'); return; }
-  APP.users.push({login, pwd:hashPwd(pwd), role}); localStorage.setItem(APPKEY,JSON.stringify(APP)); render(); alert('Utilisateur « '+login+' » créé.'); };
-window.delUser=login=>{ if(!confirm('Supprimer l\'utilisateur '+login+' ?'))return; APP.users=APP.users.filter(u=>u.login!==login); localStorage.setItem(APPKEY,JSON.stringify(APP)); render(); };
+  let banks=[]; document.querySelectorAll('.bkchk:checked').forEach(c=>banks.push(c.value));
+  APP.users.push({login, pwd:hashPwd(pwd), role, banks: role==='admin'?null:banks});
+  saveAPP(); audit('CREATION_UTILISATEUR',login+' ['+(role==='admin'?'toutes banques':banks.join(',')||'aucune banque')+']'); render(); alert('Utilisateur « '+login+' » créé.'); };
+window.delUser=login=>{ if(!confirm('Supprimer l\'utilisateur '+login+' ?'))return; APP.users=APP.users.filter(u=>u.login!==login); saveAPP(); audit('SUPPRESSION_UTILISATEUR',login); render(); };
 
 /* Navigation */
-document.querySelectorAll('.nav a').forEach(a=>a.onclick=()=>go(a.dataset.v));
+$('#nav').addEventListener('click',e=>{ const hdr=e.target.closest('.bankhdr'); if(hdr){ const id=hdr.dataset.bank; navOpen[id]=!(navOpen[id]!==false); buildNav(); return; } const a=e.target.closest('a[data-v]'); if(a) go(a.dataset.v); });
 $('#menubtn').onclick=()=>$('#nav').classList.toggle('open');
 $('#topBackup').onclick=()=>{ downloadJSON(); };
 
 /* Mode d'installation : poste unique ou poste client reseau */
-function persistApp(){ try{ localStorage.setItem(APPKEY,JSON.stringify(APP)); }catch(e){} }
+function persistApp(){ saveAPP(); }
 let netSession=null;
 function showModeChooser(){ if($('#netOv'))$('#netOv').classList.remove('show'); $('#modeSel').classList.add('show'); }
 function showNetLogin(){ const pre=(APP.server&&APP.server.url)||''; if($('#netUrl'))$('#netUrl').value=pre; $('#modeSel').classList.remove('show'); $('#netOv').classList.add('show'); setTimeout(()=>{ try{$('#netUser').focus();}catch(e){} },60); }
@@ -1796,7 +2512,7 @@ function setSyncStatus(txt, warn){ let b=document.getElementById('netBadge');
   b.style.borderColor = warn ? 'var(--dr)' : 'var(--line)';
   b.textContent='🌐 Réseau : '+txt; }
 function loadServerData(data){ S=normalize(data); APP.companies[APP.active].data=S;
-  try{ localStorage.setItem(APPKEY,JSON.stringify(APP)); }catch(e){}
+  saveAPP();
   render(); }
 async function netPull(){ const r=await srvFetch('/api/data');
   if(!r.ok) throw new Error('data '+r.status);
